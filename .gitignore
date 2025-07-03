@@ -1,0 +1,17 @@
+# Build folders
+bin/
+obj/
+Content/bin/
+Content/obj/
+
+# IDE folders
+.idea/
+.vs/
+
+# User-specific files
+*.user
+*.suo
+*.userprefs
+
+# Rider-specific
+*.sln.iml
