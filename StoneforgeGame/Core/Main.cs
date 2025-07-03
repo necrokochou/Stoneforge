@@ -58,6 +58,8 @@ public class Main : Microsoft.Xna.Framework.Game {
     protected override void LoadContent() {
         _spriteBatch = new SpriteBatch(GraphicsDevice);
         
+        TextureLibrary.Load();
+        
         _sceneManager.ChangeScene(_stageOne);
     }
 

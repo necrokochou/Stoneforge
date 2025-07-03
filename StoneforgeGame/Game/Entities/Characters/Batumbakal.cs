@@ -61,7 +61,12 @@ public class Batumbakal : Character {
         
         Animations.Add(
             "Idle",
-            new Animation(Texture, new Point(0, 0), new Point(0, 11), 1)
+            new Animation(
+                Texture,
+                new Point(0, 0),
+                new Point(0, 11),
+                8
+            )
         );
         
         CurrentAnimation = Animations["Idle"];
@@ -121,6 +126,11 @@ public class Batumbakal : Character {
 
     public override void Draw(SpriteBatch spriteBatch) {
         CollisionBox.Draw(spriteBatch, Color.Yellow * 0.5f, 2);
-        spriteBatch.Draw(Texture.Image, Destination, Source, Color);
+        spriteBatch.Draw(
+            Texture.Image,
+            Destination,
+            CurrentAnimation.GetFrame(Source.Width, Source.Height),
+            Color
+        );
     }
 }

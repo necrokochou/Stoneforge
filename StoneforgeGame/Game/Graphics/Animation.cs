@@ -24,6 +24,9 @@ public class Animation {
         _endFrame = endFrame;
         _interval = interval;
         _isLooping = isLooping;
+        
+        _rowIndex = _startFrame.X;
+        _columnIndex = _startFrame.Y;
     }
 
 
@@ -55,11 +58,14 @@ public class Animation {
             _columnIndex = _endFrame.Y;
             return;
         }
-        
-        if (_rowIndex >= _endFrame.X) {
-            _rowIndex = _startFrame.X;
-            _columnIndex = _startFrame.Y;
-        }
+
+        if (_rowIndex >= _endFrame.X && _columnIndex >= _endFrame.Y) Reset();
+    }
+
+    private void Reset() {
+        _rowIndex = _startFrame.X;
+        _columnIndex = _startFrame.Y;
+        _counter = 0;
     }
 
     public Rectangle GetFrame(int frameWidth, int frameHeight) {
