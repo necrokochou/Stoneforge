@@ -1,5 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
-using Texture = StoneforgeGame.Game.Utilities.Texture;
+using Texture = StoneforgeGame.Game.Graphics.Texture;
 
 
 namespace StoneforgeGame.Game.Graphics;
@@ -14,16 +14,16 @@ public class Animation {
     private int _columnIndex;
     private Point _startFrame;
     private Point _endFrame;
-    private bool _isLooping;
+    private bool _isLoop;
 
 
     // CONSTRUCTORS
-    public Animation(Texture texture, Point startFrame, Point endFrame, int interval, bool isLooping = true) {
+    public Animation(Texture texture, Point startFrame, Point endFrame, int interval, bool isLoop = true) {
         _texture = texture;
         _startFrame = startFrame;
         _endFrame = endFrame;
         _interval = interval;
-        _isLooping = isLooping;
+        _isLoop = isLoop;
         
         _rowIndex = _startFrame.X;
         _columnIndex = _startFrame.Y;
@@ -53,7 +53,7 @@ public class Animation {
             _rowIndex++;
         }
 
-        if (!_isLooping) {
+        if (!_isLoop) {
             _rowIndex = _endFrame.X;
             _columnIndex = _endFrame.Y;
             return;

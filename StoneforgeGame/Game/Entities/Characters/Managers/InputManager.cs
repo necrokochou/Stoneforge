@@ -13,7 +13,8 @@ public class InputManager {
 
     private bool _moveLeft;
     private bool _moveRight;
-    private bool _moveJump;
+    private bool _pressJump;
+    private bool _releaseJump;
 
     private bool _reset;
     private bool _teleport;
@@ -30,8 +31,11 @@ public class InputManager {
     public bool MoveRight {
         get => _moveRight;
     }
-    public bool MoveJump {
-        get => _moveJump;
+    public bool PressJump {
+        get => _pressJump;
+    }
+    public bool ReleaseJump {
+        get => _releaseJump;
     }
     
     public bool Reset {
@@ -52,7 +56,8 @@ public class InputManager {
         
         _moveLeft = _keyState.IsKeyDown(Keys.A);
         _moveRight = _keyState.IsKeyDown(Keys.D);
-        _moveJump = _keyState.IsKeyDown(Keys.Space);
+        _pressJump = _keyState.IsKeyDown(Keys.Space);
+        _releaseJump = _keyState.IsKeyUp(Keys.Space);
         
         _reset = _keyState.IsKeyDown(Keys.R);
         _teleport = _mouseState.LeftButton == ButtonState.Pressed;

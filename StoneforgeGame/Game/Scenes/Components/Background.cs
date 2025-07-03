@@ -1,6 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Texture = StoneforgeGame.Game.Utilities.Texture;
+using Texture = StoneforgeGame.Game.Graphics.Texture;
 
 
 namespace StoneforgeGame.Game.Scenes.Components;

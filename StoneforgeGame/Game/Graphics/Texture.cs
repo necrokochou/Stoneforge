@@ -1,7 +1,7 @@
 using Microsoft.Xna.Framework.Graphics;
 
 
-namespace StoneforgeGame.Game.Utilities;
+namespace StoneforgeGame.Game.Graphics;
 
 
 public class Texture {

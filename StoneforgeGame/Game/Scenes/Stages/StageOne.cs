@@ -48,7 +48,10 @@ public class StageOne : Scene {
         
         _characterManager.Add(_batumbakal);
         
-        _gravity = new Gravity(980f, new Vector2(0, 1));
+        _gravity = new Gravity(
+            magnitude: 980f,
+            direction: new Vector2(0, 1)
+        );
     }
     
     public override void Unload() {

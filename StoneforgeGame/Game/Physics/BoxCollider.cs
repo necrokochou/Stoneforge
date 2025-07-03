@@ -41,20 +41,20 @@ public class BoxCollider {
     public void Draw(SpriteBatch spriteBatch, Color color, int thickness) {
         MyDebug.DrawHollowRect(spriteBatch, _destination, color, thickness);
     }
-
-    public void GetNextBoundsX(Vector2 position, float velocityX, float deltaTime) {
+    
+    public void GetNextBoundsX(Vector2 position, float deltaX) {
         _nextHorizontalDestination = new Rectangle(
-            (int) position.X + (int) (velocityX * deltaTime),
+            (int) (position.X + deltaX),
             (int) position.Y,
             _destination.Width,
             _destination.Height
         );
     }
 
-    public void GetNextBoundsY(Vector2 position, float velocityY, float deltaTime) {
+    public void GetNextBoundsY(Vector2 position, float deltaY) {
         _nextVerticalDestination = new Rectangle(
             (int) position.X,
-            (int) position.Y + (int) (velocityY * deltaTime),
+            (int) (position.Y + deltaY),
             _destination.Width,
             _destination.Height
         );
@@ -62,9 +62,7 @@ public class BoxCollider {
 
     public bool HasCollided(CollisionManager collisionManager, Rectangle nextIntendedBounds) {
         foreach (BoxCollider collider in collisionManager.Colliders) {
-            if (this == collider) continue;
-            
-            if (collider.Bounds.Intersects(nextIntendedBounds)) {
+            if (this != collider && collider.Bounds.Intersects(nextIntendedBounds)) {
                 return true;
             }
         }

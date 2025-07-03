@@ -9,26 +9,31 @@ namespace StoneforgeGame.Game.Managers;
 public class AnimationManager {
     // FIELDS
     private Dictionary<string,Animation> _animations;
+    private Animation _currentAnimation;
 
 
     // CONSTRUCTORS
-
+    public AnimationManager(Dictionary<string, Animation> animations) {
+        _animations = animations;
+    }
 
 
     // PROPERTIES
-
+    
 
 
     // METHODS
-    public void Update(GameTime gameTime) {
-        
+    public void Update() {
+        _currentAnimation?.Update();
     }
-    
-    public void Add(string name, Animation animation) {
-        _animations.Add(name, animation);
+
+    public void Play(string name) {
+        if (_animations.ContainsKey(name)) {
+            _currentAnimation = _animations[name];
+        }
     }
-    
-    public void Remove(string name) {
-        _animations.Remove(name);
+
+    public Rectangle GetFrame(int frameWidth, int frameHeight) {
+        return _currentAnimation.GetFrame(frameWidth, frameHeight);
     }
 }
