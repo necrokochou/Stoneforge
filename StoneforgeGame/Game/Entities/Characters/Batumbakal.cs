@@ -2,7 +2,7 @@
 using System.Numerics;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using StoneforgeGame.Game.Entities.Characters.Managers;
+using StoneforgeGame.Game.Entities.Attributes;
 using StoneforgeGame.Game.Graphics;
 using StoneforgeGame.Game.Libraries;
 using StoneforgeGame.Game.Managers;
@@ -27,11 +27,15 @@ public class Batumbakal : Character {
 
     // CONSTRUCTORS
     public Batumbakal() {
-        Name = "Batumbakal";
         Texture = TextureLibrary.Batumbakal;
+        
+        Name = "Batumbakal";
+        Health = new Health(100);
+        
         WalkSpeed = 200f;
-        JumpPower = 700f;
+        JumpPower = 500f;
         JumpCount = 2;
+        InvincibilityFrames = 3f;
         AttackCooldown = 3f;
         
         IsFacingRight = true;
@@ -61,19 +65,19 @@ public class Batumbakal : Character {
 
         CollisionBox = new BoxCollider(
             Destination.Location,
-            Destination.Size - Destination.Location
+            Destination.Size - Destination.Location,
+            false, false, this
         );
 
         _origin = position;
         ActualPosition = position.ToVector2();
-        
+
         AnimationManager = new AnimationManager(AnimationLibrary.BatumbakalAnimations);
         AnimationManager.Play("Idle");
     }
 
     public override void Update(GameTime gameTime, CollisionManager collisionManager, Gravity gravity) { 
         float deltaTime = (float) gameTime.ElapsedGameTime.TotalSeconds;
-        
         _input.Update();
 
         #region --- DEBUGGING ---
@@ -128,6 +132,24 @@ public class Batumbakal : Character {
         }
         #endregion
         
+        #region --- GET HIT ---
+        if (Health.WasDecreased) {
+            IsHit = true;
+            AnimationManager.Play("Hit");
+            InvincibilityTimer = InvincibilityFrames;
+            Health.WasDecreased = false;
+        }
+
+        if (IsHit && CurrentAnimation.IsFinished) {
+            IsHit = false;
+        }
+
+        if (!IsHit && InvincibilityTimer > 0f) {
+            InvincibilityTimer -= deltaTime;
+            if (InvincibilityTimer < 0f) InvincibilityTimer = 0f;
+        }
+        #endregion
+        
         CheckState();
 
         #region --- VELOCITY ---
@@ -152,13 +174,12 @@ public class Batumbakal : Character {
         #endregion
         
         AnimationManager.Update();
-        // Console.WriteLine(AttackCooldownTimer);
     }
 
     public override void Draw(SpriteBatch spriteBatch) {
         SpriteEffects flip = IsFacingRight ? SpriteEffects.None : SpriteEffects.FlipHorizontally;
         
-        CollisionBox.Draw(spriteBatch, Color.Yellow * 0.5f, 2);
+        CollisionBox.Draw(spriteBatch, 2);
         spriteBatch.Draw(
             Texture.Image,
             Destination,
@@ -169,5 +190,6 @@ public class Batumbakal : Character {
             flip,
             0f
         );
+        DrawAttributes(spriteBatch);
     }
 }

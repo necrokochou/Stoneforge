@@ -39,10 +39,14 @@ public class CollisionManager {
         _colliders.Add(boxCollider);
     }
     
-    public void Add(Point start, Point end) {
-        BoxCollider newBoxCollider = new BoxCollider(start, end);
+    public void Add(Point start, Point end, bool isSolid = true, bool isDamage = false) {
+        BoxCollider newBoxCollider = new BoxCollider(start, end, isSolid, isDamage);
         
         _colliders.Add(newBoxCollider);
+    }
+
+    public void AddSquare(Point start, int width, int height, bool isSolid = true, bool isDamage = false) {
+        Add(start, new Point(start.X + width, start.Y + height), isSolid, isDamage);
     }
 
     public void SetBorder(int thickness = 1) {

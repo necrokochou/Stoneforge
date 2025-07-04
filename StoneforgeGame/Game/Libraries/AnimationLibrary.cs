@@ -14,7 +14,7 @@ public static class AnimationLibrary {
             new Animation(
                 TextureLibrary.Batumbakal,
                 new Point(0, 0), new Point(0, 11),
-                8, false
+                8
             )
         },
         {
@@ -22,7 +22,7 @@ public static class AnimationLibrary {
             new Animation(
                 TextureLibrary.Batumbakal,
                 new Point(1, 1), new Point(1, 2),
-                8, true, true
+                8, true
             )
         },
         {
@@ -30,7 +30,7 @@ public static class AnimationLibrary {
             new Animation(
                 TextureLibrary.Batumbakal,
                 new Point(1, 9), new Point(1, 10),
-                8, true, true
+                8, true
             )
         },
         {
@@ -38,7 +38,7 @@ public static class AnimationLibrary {
             new Animation(
                 TextureLibrary.Batumbakal,
                 new Point(2, 0), new Point(2, 7),
-                8, false
+                8
             )
         },
         {
@@ -62,7 +62,7 @@ public static class AnimationLibrary {
             new Animation(
                 TextureLibrary.Batumbakal,
                 new Point(4, 0), new Point(4, 11),
-                8, true, true
+                8, true
             )       
         }
     };
