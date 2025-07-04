@@ -13,6 +13,13 @@
 
 #---------------------------------- Content ---------------------------------#
 
+#begin Assets/Fonts/TempFont.spritefont
+/importer:FontDescriptionImporter
+/processor:FontDescriptionProcessor
+/processorParam:PremultiplyAlpha=True
+/processorParam:TextureFormat=Compressed
+/build:Assets/Fonts/TempFont.spritefont;Assets/Fonts/TempFont
+
 #begin Assets/Textures/Batumbakal.png
 /importer:TextureImporter
 /processor:TextureProcessor

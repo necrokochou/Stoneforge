@@ -36,14 +36,17 @@ public class Main : Microsoft.Xna.Framework.Game {
         Window.Title = "Stoneforge";
         Window.IsBorderless = true;
         Window.Position = Point.Zero;
+        IsMouseVisible = false;
         
         _graphics.ApplyChanges();
     }
 
     protected override void Initialize() {
         MyDebug.Graphics = GraphicsDevice;
-        Scene.Window = Window.ClientBounds;
+        FontLibrary.Content = Content;
         TextureLibrary.Content = Content;
+        // InputManager.Window = Window.ClientBounds;
+        Scene.Window = Window.ClientBounds;
         
         _sceneManager = new SceneManager();
         
@@ -56,6 +59,7 @@ public class Main : Microsoft.Xna.Framework.Game {
     protected override void LoadContent() {
         _spriteBatch = new SpriteBatch(GraphicsDevice);
         
+        FontLibrary.Load();
         TextureLibrary.Load();
         
         _sceneManager.ChangeScene(_stageOne);
