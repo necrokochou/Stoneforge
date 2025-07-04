@@ -30,8 +30,6 @@ public class Main : Microsoft.Xna.Framework.Game {
         Content.RootDirectory = "Content";
         IsMouseVisible = true;
         
-        // _graphics.PreferredBackBufferWidth = 1280;
-        // _graphics.PreferredBackBufferHeight = 720;
         _graphics.PreferredBackBufferWidth = 1920;
         _graphics.PreferredBackBufferHeight = 1080;
         

@@ -8,7 +8,7 @@ namespace StoneforgeGame.Game.Managers;
 
 public class AnimationManager {
     // FIELDS
-    private Dictionary<string,Animation> _animations;
+    private Dictionary<string, Animation> _animations;
     private Animation _currentAnimation;
 
 
@@ -19,7 +19,9 @@ public class AnimationManager {
 
 
     // PROPERTIES
-    
+    public Animation CurrentAnimation {
+        get => _currentAnimation;
+    }
 
 
     // METHODS
@@ -28,9 +30,14 @@ public class AnimationManager {
     }
 
     public void Play(string name) {
-        if (_animations.ContainsKey(name)) {
-            _currentAnimation = _animations[name];
-        }
+        if (!_animations.ContainsKey(name))
+            return;
+
+        if (_currentAnimation == _animations[name])
+            return;
+
+        _currentAnimation = _animations[name];
+        _currentAnimation.Reset();
     }
 
     public Rectangle GetFrame(int frameWidth, int frameHeight) {

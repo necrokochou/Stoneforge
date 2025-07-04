@@ -14,32 +14,56 @@ public static class AnimationLibrary {
             new Animation(
                 TextureLibrary.Batumbakal,
                 new Point(0, 0), new Point(0, 11),
-                8
+                8, false
             )
         },
         {
             "Jump",
             new Animation(
                 TextureLibrary.Batumbakal,
-                new Point(1, 1), new Point(1, 3),
-                8,
-                false)
+                new Point(1, 1), new Point(1, 2),
+                8, true, true
+            )
         },
         {
             "Fall",
             new Animation(
                 TextureLibrary.Batumbakal,
-                new Point(1, 5), new Point(1, 7),
-                8,
-                false)
+                new Point(1, 9), new Point(1, 10),
+                8, true, true
+            )
         },
         {
             "Walk",
             new Animation(
                 TextureLibrary.Batumbakal,
                 new Point(2, 0), new Point(2, 7),
-                8
+                8, false
             )
+        },
+        {
+            "Hit",
+            new Animation(
+                TextureLibrary.Batumbakal,
+                new Point(2, 8), new Point(2, 11),
+                8, true
+            )
+        },
+        {
+            "Attack",
+            new Animation(
+                TextureLibrary.Batumbakal,
+                new Point(3, 0), new Point(3, 8),
+                4, true
+            )       
+        },
+        {
+            "Death",
+            new Animation(
+                TextureLibrary.Batumbakal,
+                new Point(4, 0), new Point(4, 11),
+                8, true, true
+            )       
         }
     };
 
