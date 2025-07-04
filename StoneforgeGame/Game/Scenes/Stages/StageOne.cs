@@ -33,12 +33,11 @@ public class StageOne : Scene {
 
     // METHODS
     public override void Load() {
-        Background = new Background(TextureLibrary.TempBackground, Window.Size);
+        Background = new Background(TextureLibrary.StageOneBackground, Window.Size);
         
         _collisionManager.SetBorder(32);
         _collisionManager.Add(new Point(0, 0), new Point(1920, 100));
         _collisionManager.Add(new Point(0, 900), new Point(1920, 1080));
-        _collisionManager.AddSquare(new Point(500, 700), 100, 100, true, true);
         
         _batumbakal = new Batumbakal();
         _batumbakal.Load(new Point(100, 300));

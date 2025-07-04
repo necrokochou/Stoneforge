@@ -15,17 +15,19 @@ public class Animation {
     private int _columnIndex;
     private Point _startFrame;
     private Point _endFrame;
+    private bool _playOnce;
     private bool _endOnLastFrame;
     private bool _isFinished;
 
 
     // CONSTRUCTORS
-    public Animation(Texture texture, Point startFrame, Point endFrame, int interval, bool endOnLastFrame = false) {
+    public Animation(Texture texture, Point startFrame, Point endFrame, int interval, bool playOnce, bool endOnLastFrame = false) {
         _texture = texture;
         _startFrame = startFrame;
         _endFrame = endFrame;
         _interval = interval;
-        _endOnLastFrame = endOnLastFrame;
+        _playOnce = playOnce;
+        _endOnLastFrame = playOnce && endOnLastFrame;
         
         _rowIndex = _startFrame.X;
         _columnIndex = _startFrame.Y;
@@ -61,15 +63,18 @@ public class Animation {
             (_rowIndex > _endFrame.X) || 
             (_rowIndex == _endFrame.X && _columnIndex > _endFrame.Y);
 
-        if (_endOnLastFrame && reachedEndFrame) {
+        if (_playOnce && reachedEndFrame) {
             _isFinished = true;
-            _rowIndex = _endFrame.X;
-            _columnIndex = _endFrame.Y;
+
+            if (_endOnLastFrame) {
+                _rowIndex = _endFrame.X;
+                _columnIndex = _endFrame.Y;
+            }
 
             return;
         }
 
-        if (!_endOnLastFrame && reachedEndFrame) Reset();
+        if (!_playOnce && reachedEndFrame) Reset();
     }
 
     public void Reset() {

@@ -1,7 +1,5 @@
-﻿using System;
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using StoneforgeGame.Game.Entities.Characters;
 using StoneforgeGame.Game.Managers;
 using StoneForgeGame.Game.Utilities;
 
@@ -14,24 +12,13 @@ public class BoxCollider {
     private Rectangle _destination;
     private Rectangle _nextHorizontalDestination;
     private Rectangle _nextVerticalDestination;
-    private Color _color;
-
-    private bool _isSolid;
-    private bool _isDamage;
-
-    private Character _owner;
 
 
     // CONSTRUCTORS
-    public BoxCollider(Point location, Point size, bool isSolid = true, bool isDamage = false, Character owner = null) {
+    public BoxCollider(Point location, Point size) {
         _destination = new Rectangle(location.X, location.Y,
             size.X - location.X, size.Y - location.Y
         );
-        _isSolid = isSolid;
-        _isDamage = isDamage;
-        _owner = owner;
-
-        _color = Color.Red;
     }
 
     // PROPERTIES
@@ -44,9 +31,6 @@ public class BoxCollider {
     public Rectangle NextVerticalBounds {
         get => _nextVerticalDestination;
     }
-    public bool IsDamage {
-        get => _isDamage;
-    }
 
 
     // METHODS
@@ -54,8 +38,8 @@ public class BoxCollider {
         _destination = destination;
     }
     
-    public void Draw(SpriteBatch spriteBatch, int thickness) {
-        MyDebug.DrawHollowRect(spriteBatch, _destination, _color, thickness);
+    public void Draw(SpriteBatch spriteBatch, Color color, int thickness) {
+        MyDebug.DrawHollowRect(spriteBatch, _destination, color, thickness);
     }
     
     public void GetNextBounds(Vector2 position, Vector2 nextPosition) {
@@ -77,14 +61,7 @@ public class BoxCollider {
     public bool HasCollided(CollisionManager collisionManager, Rectangle nextIntendedBounds) {
         foreach (BoxCollider collider in collisionManager.Colliders) {
             if (this != collider && collider.Bounds.Intersects(nextIntendedBounds)) {
-                if (_owner != null) {
-                    if (_owner.CanGetHit && collider._isDamage) {
-                        _owner.AttrHealth.Decrease(5);
-                    }
-                }
-                
-                if (collider._isSolid)
-                    return true;
+                return true;
             }
         }
 

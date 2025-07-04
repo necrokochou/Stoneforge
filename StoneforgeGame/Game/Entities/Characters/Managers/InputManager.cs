@@ -1,8 +1,9 @@
+using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 
 
-namespace StoneforgeGame.Game.Managers;
+namespace StoneforgeGame.Game.Entities.Characters.Managers;
 
 
 public class InputManager {
@@ -19,8 +20,6 @@ public class InputManager {
     
     private bool _reset;
     private bool _teleport;
-    
-    // public static Rectangle Window;
 
 
     // CONSTRUCTORS
