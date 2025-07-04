@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework;
+﻿using System;
+using Microsoft.Xna.Framework;
 using Texture = StoneforgeGame.Game.Graphics.Texture;
 
 
@@ -14,16 +15,19 @@ public class Animation {
     private int _columnIndex;
     private Point _startFrame;
     private Point _endFrame;
-    private bool _isLoop;
+    private bool _playOnce;
+    private bool _endOnLastFrame;
+    private bool _isFinished;
 
 
     // CONSTRUCTORS
-    public Animation(Texture texture, Point startFrame, Point endFrame, int interval, bool isLoop = true) {
+    public Animation(Texture texture, Point startFrame, Point endFrame, int interval, bool playOnce, bool endOnLastFrame = false) {
         _texture = texture;
         _startFrame = startFrame;
         _endFrame = endFrame;
         _interval = interval;
-        _isLoop = isLoop;
+        _playOnce = playOnce;
+        _endOnLastFrame = playOnce && endOnLastFrame;
         
         _rowIndex = _startFrame.X;
         _columnIndex = _startFrame.Y;
@@ -31,8 +35,10 @@ public class Animation {
 
 
     // PROPERTIES
-
-
+    public bool IsFinished {
+        get => _isFinished;
+    }
+    
 
     // METHODS
     public void Update() {
@@ -40,7 +46,7 @@ public class Animation {
 
         if (_counter >= _interval) {
             _counter = 0;
-
+            
             NextFrame();
         }
     }
@@ -48,24 +54,35 @@ public class Animation {
     private void NextFrame() {
         _columnIndex++;
         
-        if (_columnIndex >= _endFrame.Y && _rowIndex < _endFrame.X || _columnIndex >= _texture.Columns) {
-            _columnIndex = _startFrame.Y;
+        if (_columnIndex >= _texture.Columns) {
+            _columnIndex = 0;
             _rowIndex++;
         }
 
-        if (!_isLoop) {
-            _rowIndex = _endFrame.X;
-            _columnIndex = _endFrame.Y;
+        bool reachedEndFrame = 
+            (_rowIndex > _endFrame.X) || 
+            (_rowIndex == _endFrame.X && _columnIndex > _endFrame.Y);
+
+        if (_playOnce && reachedEndFrame) {
+            _isFinished = true;
+
+            if (_endOnLastFrame) {
+                _rowIndex = _endFrame.X;
+                _columnIndex = _endFrame.Y;
+            }
+
             return;
         }
 
-        if (_rowIndex >= _endFrame.X && _columnIndex >= _endFrame.Y) Reset();
+        if (!_playOnce && reachedEndFrame) Reset();
     }
 
-    private void Reset() {
+    public void Reset() {
         _rowIndex = _startFrame.X;
         _columnIndex = _startFrame.Y;
         _counter = 0;
+        
+        _isFinished = false;
     }
 
     public Rectangle GetFrame(int frameWidth, int frameHeight) {

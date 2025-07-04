@@ -32,13 +32,16 @@ public class Batumbakal : Character {
         WalkSpeed = 200f;
         JumpPower = 700f;
         JumpCount = 2;
+        AttackCooldown = 3f;
         
         IsFacingRight = true;
     }
 
 
     // PROPERTIES
-
+    private Animation CurrentAnimation {
+        get => AnimationManager.CurrentAnimation;
+    }
 
 
     // METHODS
@@ -73,12 +76,19 @@ public class Batumbakal : Character {
         
         _input.Update();
 
+        #region --- DEBUGGING ---
         if (_input.Reset) {
             ActualPosition = _origin.ToVector2();
         }
         
+        if (_input.Teleport) {
+            Velocity = Vector2.Zero;
+            ActualPosition = _input.TeleportLocation.ToVector2();
+        }
+        #endregion
+        
+        #region --- MOVEMENT ---
         Direction = Vector2.Zero;
-
         if (_input.MoveLeft) {
             Direction.X -= 1;
             IsFacingRight = false;
@@ -86,56 +96,63 @@ public class Batumbakal : Character {
             Direction.X += 1;
             IsFacingRight = true;
         }
+        #endregion
         
+        #region --- JUMP ---
         if (_input.PressJump && JumpCount > 0 && !_isHoldingJump) {
             Velocity.Y = -JumpPower;
             _isHoldingJump = true;
             JumpCount--;
+            Direction.Y = -1;
         }
 
         if (_input.ReleaseJump) {
             _isHoldingJump = false;
         }
-        
-        if (_input.Teleport) {
-            ActualPosition = _input.TeleportLocation.ToVector2();
+        #endregion
+
+        #region --- ATTACK ---
+        if (_input.PressAttack && !IsAttacking && AttackCooldownTimer <= 0f) {
+            IsAttacking = true;
+            AnimationManager.Play("Attack");
+            AttackCooldownTimer = AttackCooldown;
         }
         
-        CheckState();
-        
-        Velocity.X = Direction.X * WalkSpeed;
-        Velocity.Y += gravity.Magnitude * deltaTime;
-        
-        if (Math.Abs(Velocity.Y) < 0.01f) {
-            Velocity.Y = 0f;
+        if (IsAttacking && CurrentAnimation.IsFinished) {
+            IsAttacking = false;
         }
 
+        if (!IsAttacking && AttackCooldownTimer > 0f) {
+            AttackCooldownTimer -= deltaTime;
+            if (AttackCooldownTimer < 0f) AttackCooldownTimer = 0f;
+        }
+        #endregion
+        
+        CheckState();
+
+        #region --- VELOCITY ---
+        Velocity.X = Direction.X * WalkSpeed;
+        Velocity.Y += gravity.Magnitude * deltaTime;
+        if (IsAttacking) {
+            Velocity *= 0.2f;
+        }
+        #endregion
+
+        #region --- COLLISION ---
         NextPosition.X = ActualPosition.X + Velocity.X * deltaTime;
-        CollisionBox.GetNextBoundsX(ActualPosition, Velocity.X * deltaTime);
-        if (!CollisionBox.HasCollided(collisionManager, CollisionBox.NextHorizontalBounds)) {
-            ActualPosition.X = NextPosition.X;
-        } else {
-            Velocity.X = 0;
-        }
-        
         NextPosition.Y = ActualPosition.Y + Velocity.Y * deltaTime;
-        CollisionBox.GetNextBoundsY(ActualPosition, Velocity.Y * deltaTime);
-        if (!CollisionBox.HasCollided(collisionManager, CollisionBox.NextVerticalBounds)) {
-            ActualPosition.Y = NextPosition.Y;
-            IsOnGround = false;
-        } else {
-            Velocity.Y = 0;
-            IsOnGround = true;
-            IsJumping = false;
-            JumpCount = 2;
-        }
+        CollisionBox.GetNextBounds(ActualPosition, NextPosition);
+        CheckCollision(collisionManager);
+        #endregion
         
+        #region --- POSITION ---
         Destination.Location = ActualPosition.ToPoint();
+        UpdateGamePos();
         CollisionBox.Update(Destination);
-        AnimationManager.Update();
+        #endregion
         
-        Console.WriteLine(Velocity);
-        // Console.WriteLine($"{Velocity} {deltaTime} {ActualPosition.X} {ActualPosition.Y}");
+        AnimationManager.Update();
+        // Console.WriteLine(AttackCooldownTimer);
     }
 
     public override void Draw(SpriteBatch spriteBatch) {

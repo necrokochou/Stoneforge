@@ -42,19 +42,17 @@ public class BoxCollider {
         MyDebug.DrawHollowRect(spriteBatch, _destination, color, thickness);
     }
     
-    public void GetNextBoundsX(Vector2 position, float deltaX) {
+    public void GetNextBounds(Vector2 position, Vector2 nextPosition) {
         _nextHorizontalDestination = new Rectangle(
-            (int) (position.X + deltaX),
+            (int) nextPosition.X,
             (int) position.Y,
             _destination.Width,
             _destination.Height
         );
-    }
-
-    public void GetNextBoundsY(Vector2 position, float deltaY) {
+        
         _nextVerticalDestination = new Rectangle(
             (int) position.X,
-            (int) (position.Y + deltaY),
+            (int) nextPosition.Y,
             _destination.Width,
             _destination.Height
         );
