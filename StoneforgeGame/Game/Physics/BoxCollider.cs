@@ -23,12 +23,12 @@ public class BoxCollider {
 
 
     // CONSTRUCTORS
-    public BoxCollider(Point location, Point size, bool isSolid = true, bool isDamage = false, Character owner = null) {
+    public BoxCollider(Point location, Point size, bool solid = true, bool damage = false, Character owner = null) {
         _destination = new Rectangle(location.X, location.Y,
             size.X - location.X, size.Y - location.Y
         );
-        _isSolid = isSolid;
-        _isDamage = isDamage;
+        _isSolid = solid;
+        _isDamage = damage;
         _owner = owner;
 
         _color = Color.Red;

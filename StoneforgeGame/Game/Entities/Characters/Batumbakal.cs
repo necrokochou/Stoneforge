@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Numerics;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using StoneforgeGame.Game.Entities.Attributes;
@@ -49,7 +48,7 @@ public class Batumbakal : Character {
 
 
     // METHODS
-    public override void Load(Point position, int sizeMultiplier = 1) {
+    public override void Load(Rectangle window, Point position, int sizeMultiplier = 1) {
         int frameWidth = Texture.Image.Width / Texture.Columns;
         int frameHeight = Texture.Image.Height / Texture.Rows;
         
@@ -70,6 +69,8 @@ public class Batumbakal : Character {
         );
 
         _origin = position;
+        if (_origin.X < 0 || _origin.X >= window.Right - Source.Width) _origin.X = 0;
+        if (_origin.Y < 0 || _origin.Y >= window.Bottom - Source.Height) _origin.Y = 0;
         ActualPosition = position.ToVector2();
 
         AnimationManager = new AnimationManager(AnimationLibrary.BatumbakalAnimations);
@@ -82,6 +83,7 @@ public class Batumbakal : Character {
 
         #region --- DEBUGGING ---
         if (_input.Reset) {
+            // Velocity = Vector2.Zero;
             ActualPosition = _origin.ToVector2();
         }
         
@@ -89,6 +91,8 @@ public class Batumbakal : Character {
             Velocity = Vector2.Zero;
             ActualPosition = _input.TeleportLocation.ToVector2();
         }
+        
+        // Console.WriteLine(Destination.Location);
         #endregion
         
         #region --- MOVEMENT ---
@@ -155,6 +159,7 @@ public class Batumbakal : Character {
         #region --- VELOCITY ---
         Velocity.X = Direction.X * WalkSpeed;
         Velocity.Y += gravity.Magnitude * deltaTime;
+        // Velocity = Vector2.Clamp(Velocity, Vector2.Zero, new Vector2(WalkSpeed, gravity.Magnitude));
         if (IsAttacking) {
             Velocity *= 0.2f;
         }

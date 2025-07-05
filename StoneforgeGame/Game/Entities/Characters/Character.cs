@@ -65,7 +65,7 @@ public abstract class Character {
 
 
     // METHODS
-    public abstract void Load(Point position, int sizeMultiplier = 1);
+    public abstract void Load(Rectangle window, Point position, int sizeMultiplier = 1);
 
     public abstract void Update(GameTime gameTime, CollisionManager collisionManager, Gravity gravity);
 

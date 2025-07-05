@@ -2,6 +2,7 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using StoneforgeGame.Game.Entities.Characters;
 using StoneforgeGame.Game.Libraries;
 using StoneforgeGame.Game.Managers;
 using StoneForgeGame.Game.Managers;
@@ -23,7 +24,11 @@ public class Main : Microsoft.Xna.Framework.Game {
     
     private SceneManager _sceneManager;
     
-    private StageOne _stageOne;
+    private Stage _stageOne;
+    private Stage _stageTwo;
+    private Stage _stageThree;
+    
+    private Batumbakal _batumbakal;
 
     public Main() {
         _graphics = new GraphicsDeviceManager(this);
@@ -32,9 +37,10 @@ public class Main : Microsoft.Xna.Framework.Game {
         
         _graphics.PreferredBackBufferWidth = 1920;
         _graphics.PreferredBackBufferHeight = 1080;
+        // _graphics.IsFullScreen = true;
         
-        Window.Title = "Stoneforge";
         Window.IsBorderless = true;
+        Window.Title = "Stoneforge";
         Window.Position = Point.Zero;
         IsMouseVisible = false;
         
@@ -48,10 +54,6 @@ public class Main : Microsoft.Xna.Framework.Game {
         // InputManager.Window = Window.ClientBounds;
         Scene.Window = Window.ClientBounds;
         
-        _sceneManager = new SceneManager();
-        
-        _stageOne = new StageOne();
-
 
         base.Initialize();
     }
@@ -62,7 +64,21 @@ public class Main : Microsoft.Xna.Framework.Game {
         FontLibrary.Load();
         TextureLibrary.Load();
         
-        _sceneManager.ChangeScene(_stageOne);
+        _batumbakal = new Batumbakal();
+
+        _stageOne = new StageOne(_batumbakal);
+        _stageTwo = new StageTwo(_batumbakal);
+        _stageThree = new StageThree(_batumbakal);
+
+        _sceneManager = new SceneManager(
+            [_stageOne, _stageTwo, _stageThree]
+        );
+        
+        // _sceneManager = new SceneManager(
+        //     [_stageTwo]
+        // );
+        
+        _sceneManager.Load();
     }
 
     protected override void Update(GameTime gameTime) {
