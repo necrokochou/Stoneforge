@@ -1,6 +1,4 @@
 ﻿using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Content;
-using Microsoft.Xna.Framework.Graphics;
 using StoneforgeGame.Game.Entities.Characters;
 using StoneforgeGame.Game.Libraries;
 using StoneforgeGame.Game.Managers;
@@ -12,60 +10,51 @@ using StoneforgeGame.Game.Scenes.Components;
 namespace StoneforgeGame.Game.Scenes.Stages;
 
 
-public class StageOne : Scene {
+public class StageOne : Stage {
     // FIELDS
-    private CollisionManager _collisionManager = new CollisionManager();
-    private CharacterManager _characterManager;
+
+
     
-    private string _name = "Heart of the Mountain";
-    private Batumbakal _batumbakal;
-
-    private Gravity _gravity;
-
-
     // CONSTRUCTORS
-    
-
-
-    // PROPERTIES
-
-
-
-    // METHODS
-    public override void Load() {
-        Background = new Background(TextureLibrary.TempBackground, Window.Size);
+    public StageOne(Character character) {
+        CollisionManager = new CollisionManager();
+        Name = "Heart of the Mountain";
+        Player = character;
         
-        _collisionManager.SetBorder(32);
-        _collisionManager.Add(new Point(0, 0), new Point(1920, 100));
-        _collisionManager.Add(new Point(0, 900), new Point(1920, 1080));
-        _collisionManager.AddSquare(new Point(500, 700), 100, 100, true, true);
+        ReachedNextLocation = false;
         
-        _batumbakal = new Batumbakal();
-        _batumbakal.Load(new Point(100, 300));
-        
-        _collisionManager.Add(_batumbakal.Collider);
-        
-        _characterManager = new CharacterManager(_collisionManager);
-        
-        _characterManager.Add(_batumbakal);
-        
-        _gravity = new Gravity(
+        Gravity = new Gravity(
             magnitude: 980f,
             direction: new Vector2(0, 1)
         );
     }
-    
-    public override void Unload() {
-        _characterManager.Unload();
-    }
 
-    public override void Update(GameTime gameTime) {
-        _characterManager.Update(gameTime, _gravity);
-    }
+
+    // PROPERTIES
     
-    public override void Draw(SpriteBatch spriteBatch) {
-        Background.Draw(spriteBatch);
-        _collisionManager.Draw(spriteBatch);
-        _characterManager.Draw(spriteBatch);
+
+
+    // METHODS
+    public override void Load() {
+        Background = new Background(TextureLibrary.StageOneBackground, Window.Size);
+        
+        CollisionManager.SetBorder(top : true, bottom : true, left : true);
+        CollisionManager.Add(new Point(1920, 408), new Point(1920, 1080), ignore : true);
+        
+        CollisionManager.Add(new Point(0, 945), new Point(1920, 1080));
+        CollisionManager.Add(new Point(0, 495), new Point(864, 543));
+        CollisionManager.Add(new Point(864, 585), new Point(1056, 633));
+        CollisionManager.Add(new Point(1056, 675), new Point(1248, 723));
+        CollisionManager.Add(new Point(1056, 312), new Point(1152, 408));
+        CollisionManager.Add(new Point(1248, 312), new Point(1344, 408));
+        CollisionManager.Add(new Point(1440, 312), new Point(1536, 408));
+        CollisionManager.Add(new Point(1664, 312), new Point(2120, 408));
+        
+        Player.Load(Window, new Point(200, 800));
+        CollisionManager.Add(Player.Collider);
+        CharacterManager = new CharacterManager(CollisionManager);
+        CharacterManager.Add(Player);
+
+        NextSceneBounds = new Rectangle(new Point(1920, 0), new Point(2120, 1080));
     }
 }
