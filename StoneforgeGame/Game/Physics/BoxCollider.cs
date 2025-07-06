@@ -19,23 +19,28 @@ public class BoxCollider {
 
     private Character _owner;
     private bool _hasOwner;
-    
+
+    private float _collisionDamage;
+
     private bool _isSolid;
     private bool _isDamage;
 
 
 
     // CONSTRUCTORS
-    public BoxCollider(Point location, Point size, bool solid = true, bool damage = false, Character owner = null) {
-        _destination = new Rectangle(location.X, location.Y,
-            size.X - location.X, size.Y - location.Y
+    public BoxCollider(Point start, Point end, bool solid = true, bool damage = false, Character owner = null) {
+        _destination = new Rectangle(
+            start, end - start
         );
+        
         _isSolid = solid;
         _isDamage = damage;
         _owner = owner;
         _hasOwner = owner != null;
 
         _color = Color.Red;
+
+        _collisionDamage = 10;
     }
 
     // PROPERTIES
@@ -54,6 +59,9 @@ public class BoxCollider {
     public bool HasOwner {
         get => _hasOwner;
     }
+    public float CollisionDamage {
+        get => _collisionDamage;
+    }
     public bool IsSolid {
         get => _isSolid;
     }
@@ -70,7 +78,7 @@ public class BoxCollider {
     }
     
     public void Draw(SpriteBatch spriteBatch, int thickness) {
-        MyDebug.DrawHollowRect(spriteBatch, _destination, _color, thickness);
+        MyDebug.DrawHollowRect(spriteBatch, _destination, Color.Yellow, thickness);
     }
     
     public void GetNextBounds(Vector2 position, Vector2 nextPosition) {
@@ -90,19 +98,22 @@ public class BoxCollider {
     }
 
     public bool HasCollided(CollisionManager collisionManager, Rectangle nextIntendedBounds) {
+        bool collided = false;
+        bool damaged = false;
+        
         foreach (BoxCollider collider in collisionManager.Colliders) {
-            if (this != collider && collider.Bounds.Intersects(nextIntendedBounds)) {
-                if (_owner != null) {
-                    if (_owner.CanGetHit && collider._isDamage) {
-                        _owner.CurrentHealth.Decrease(5);
-                    }
-                }
-                
-                if (collider._isSolid)
-                    return true;
+            if (this == collider || !collider.Bounds.Intersects(nextIntendedBounds)) continue;
+
+            if (!damaged && _owner?.CanGetHit == true && collider._isDamage) {
+                _owner.CurrentHealth.Decrease(collider._collisionDamage);
+                damaged = true;
+            }
+
+            if (collider._isSolid) {
+                collided = true;
             }
         }
 
-        return false;
+        return collided;
     }
 }

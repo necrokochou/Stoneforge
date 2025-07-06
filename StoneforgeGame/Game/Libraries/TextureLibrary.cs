@@ -20,7 +20,7 @@ public static class TextureLibrary {
     public static Texture RedGem;
     public static Texture BlueGem;
     public static Texture GreenGem;
-    
+    public static Texture Altar;
 
 
     // CONSTRUCTORS
@@ -50,7 +50,7 @@ public static class TextureLibrary {
         
         Batumbakal = new Texture(
             _content.Load<Texture2D>("Assets/Textures/Batumbakal"),
-            5,
+            6,
             12
         );
         
@@ -94,6 +94,12 @@ public static class TextureLibrary {
             _content.Load<Texture2D>("Assets/Textures/GreenGem"),
             1,
             10
+        );
+
+        Altar = new Texture(
+            _content.Load<Texture2D>("Assets/Textures/Altar"),
+            1,
+            2
         );
     }
 }

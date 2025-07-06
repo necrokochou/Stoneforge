@@ -1,5 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using StoneforgeGame.Game.Entities.Characters;
+using StoneforgeGame.Game.Entities.ObjectTiles;
 using StoneforgeGame.Game.Libraries;
 using StoneforgeGame.Game.Managers;
 using StoneForgeGame.Game.Managers;
@@ -17,7 +18,7 @@ public class StageThree : Stage {
     
     // CONSTRUCTORS
     public StageThree(Character character) {
-        Name = "Heart of the Mountain";
+        Name = "Forgotten Library";
         Player = character;
         
         ReachedNextLocation = false;
@@ -37,7 +38,12 @@ public class StageThree : Stage {
             direction: new Vector2(0, 1)
         );
         
-        Player.Load(Window, new Point(1728, -100));
+        if (Player.ActualPosition == Vector2.Zero) {
+            Player.Load(Window, new Point(1680, -100));
+        } else {
+            Player.Load(Window, Player.ActualPosition.ToPoint()); // ← preserves saved position
+        }
+        
         CharacterManager.Add(Player);
         CollisionManager.AddRange(CharacterManager.Characters);
         
@@ -56,6 +62,8 @@ public class StageThree : Stage {
         CollisionManager.Add(new Point(1344, 810), new Point(1440, 990));
         CollisionManager.Add(new Point(1440, 720), new Point(1536, 990));
         CollisionManager.Add(new Point(1536, 630), new Point(1824, 990));
+        
+        ObjectTileManager.Add(new Altar(this), new Point(1632, 492), new Point(144, 144));
         
         CharacterManager.Load(this);
 

@@ -36,23 +36,28 @@ public class StageOne : Stage {
             direction: new Vector2(0, 1)
         );
         
-        Player.Load(Window, new Point(200, 800));
+        if (Player.ActualPosition == Vector2.Zero) {
+            Player.Load(Window, new Point(200, 800));
+        } else {
+            Player.Load(Window, Player.ActualPosition.ToPoint()); // ← preserves saved position
+        }
+        
         CharacterManager.Add(Player);
         CollisionManager.AddRange(CharacterManager.Characters);
         
-        CollisionManager.SetBorder(top : true, bottom : true, left : true);
+        CollisionManager.SetBorder(bottom : true, left : true);
         CollisionManager.Add(new Point(1920, 408), new Point(1920, 1080), ignore : true);
         
         CollisionManager.Add(new Point(0, 945), new Point(1920, 1080));
         CollisionManager.Add(new Point(0, 495), new Point(864, 543));
         CollisionManager.Add(new Point(864, 585), new Point(1056, 633));
         CollisionManager.Add(new Point(1056, 675), new Point(1248, 723));
-        CollisionManager.Add(new Point(1056, 312), new Point(1152, 360));
-        CollisionManager.Add(new Point(1248, 312), new Point(1344, 360));
-        CollisionManager.Add(new Point(1440, 312), new Point(1536, 360));
-        CollisionManager.Add(new Point(1664, 312), new Point(2120, 360));
+        CollisionManager.Add(new Point(1056, 228), new Point(1152, 276));
+        CollisionManager.Add(new Point(1248, 228), new Point(1344, 276));
+        CollisionManager.Add(new Point(1440, 228), new Point(1536, 276));
+        CollisionManager.Add(new Point(1664, 228), new Point(2120, 276));
         
-        ObjectTileManager.Add(new RockPile(), new Point(1728, 886), new Point(108, 68));
+        ObjectTileManager.Add(new RockPile(this), new Point(1728, 886), new Point(108, 68));
         CollisionManager.AddRange(ObjectTileManager.ObjectTiles);
         
         CharacterManager.Load(this);

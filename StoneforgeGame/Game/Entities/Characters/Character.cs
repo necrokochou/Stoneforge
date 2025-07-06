@@ -53,7 +53,13 @@ public abstract class Character {
     protected bool IsWalking;
     protected bool IsHit;
     protected bool IsAttacking;
+    protected bool IsDead;
 
+    protected bool CanDoAnything;
+    protected bool CanMove;
+    protected bool CanJump;
+
+        
     // CONSTRUCTORS
     
     
@@ -64,9 +70,6 @@ public abstract class Character {
     }
     public Health CurrentHealth {
         get => Health;
-    }
-    public BoxCollider Collider {
-        get => CollisionBox;
     }
     public bool CanGetHit {
         get => !IsInvincible;
@@ -88,6 +91,15 @@ public abstract class Character {
         IsFalling = Velocity.Y > 0 && !IsOnGround;
         IsWalking = Direction.X != 0 && IsOnGround;
         IsIdle = IsOnGround && !IsWalking && !IsJumping && !IsFalling && !IsAttacking;
+        IsDead = Health.Current <= 0;
+
+        if (IsDead) {
+            ResetMovement();
+            CanMove = false;
+            CanJump = false;
+            AnimationManager.Play("Death");
+            return;
+        }
         
         if (IsHit) AnimationManager.Play("Hit");
         else if (IsAttacking) AnimationManager.Play("Attack");
@@ -135,6 +147,19 @@ public abstract class Character {
         GamePosition = new Vector2(ActualPosition.X + (float) Source.X / 2, ActualPosition.Y + Source.Y);
         
         // Console.WriteLine(GamePosition);
+    }
+
+    protected void ResetMovement() {
+        Velocity.X = 0;
+        Direction = Vector2.Zero;
+    }
+
+    public Health GetHealth() {
+        return Health;
+    }
+
+    public BoxCollider GetCollisionBox() {
+        return CollisionBox;
     }
 
     protected void DrawAttributes(SpriteBatch spriteBatch) {

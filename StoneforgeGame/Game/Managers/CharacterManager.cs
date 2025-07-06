@@ -1,9 +1,7 @@
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using StoneforgeGame.Game.Entities;
 using StoneforgeGame.Game.Entities.Characters;
-using StoneforgeGame.Game.Managers;
 using StoneforgeGame.Game.Physics;
 using StoneforgeGame.Game.Scenes.Stages;
 
@@ -16,6 +14,8 @@ public class CharacterManager {
     private List<Character> _characters = new List<Character>();
     
     private Stage _stage;
+
+    private bool _debug = true;
 
 
     // CONSTRUCTORS
@@ -45,6 +45,7 @@ public class CharacterManager {
 
     public void Draw(SpriteBatch spriteBatch) {
         foreach (Character character in _characters) {
+            if (_debug) character.GetCollisionBox().Draw(spriteBatch, 2);
             character.Draw(spriteBatch);
         }
     }

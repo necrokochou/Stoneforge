@@ -17,7 +17,7 @@ public class StageTwo : Stage {
 
     // CONSTRUCTORS
     public StageTwo(Character character) {
-        Name = "Heart of the Mountain";
+        Name = "Ruins of Dusk";
         Player = character;
 
         ReachedNextLocation = false;
@@ -36,8 +36,13 @@ public class StageTwo : Stage {
             magnitude: 980f,
             direction: new Vector2(0, 1)
         );
-
-        Player.Load(Window, new Point(-100, 180));
+        
+        if (Player.ActualPosition == Vector2.Zero) {
+            Player.Load(Window, new Point(-100, 180));
+        } else {
+            Player.Load(Window, Player.ActualPosition.ToPoint()); // ← preserves saved position
+        }
+        
         CharacterManager.Add(Player);
         CollisionManager.AddRange(CharacterManager.Characters);
         

@@ -9,18 +9,18 @@ using StoneforgeGame.Game.Scenes.Stages;
 namespace StoneforgeGame.Game.Entities.ObjectTiles;
 
 
-public class RockPile : ObjectTile {
+public class Altar : ObjectTile {
     // FIELDS
     
     
 
     // CONSTRUCTORS
-    public RockPile(Stage stage) {
-        Texture = TextureLibrary.RockPile;
+    public Altar(Stage stage) {
+        Texture = TextureLibrary.Altar;
 
         Stage = stage;
         
-        IsDestroyable = true;
+        IsDestroyable = false;
     }
 
 

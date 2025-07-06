@@ -10,6 +10,8 @@ namespace StoneforgeGame.Game.Managers;
 public class ObjectTileManager {
     // FIELDS
     private List<ObjectTile> _objectTiles;
+    
+    private bool _debug = false;
 
 
     // CONSTRUCTORS
@@ -34,18 +36,18 @@ public class ObjectTileManager {
     }
 
     public void Update() {
-        foreach (ObjectTile objectTile in _objectTiles) {
-            objectTile?.Update();
-
-            if (objectTile?.IsDestroyed == true) {
-                Remove(objectTile);
-                return;
+        for (int i = _objectTiles.Count - 1; i >= 0; i--) {
+            var tile = _objectTiles[i];
+            tile?.Update();
+            if (tile?.IsDestroyed == true) {
+                _objectTiles.RemoveAt(i);
             }
         }
     }
 
     public void Draw(SpriteBatch spriteBatch) {
         foreach (ObjectTile objectTile in _objectTiles) {
+            if (_debug) objectTile?.GetCollisionBox().Draw(spriteBatch, 2);
             objectTile?.Draw(spriteBatch);
         }
     }

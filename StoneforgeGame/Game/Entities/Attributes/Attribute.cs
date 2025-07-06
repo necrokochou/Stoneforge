@@ -27,9 +27,11 @@ public abstract class Attribute {
     // PROPERTIES
     public float Current {
         get => _current;
+        set => _current = value;
     }
     public float Maximum {
         get => _maximum;
+        set => _maximum = value;   
     }
     public bool WasDecreased {
         get => _wasDecreased;

@@ -62,10 +62,29 @@ public static class AnimationLibrary {
             new Animation(
                 TextureLibrary.Batumbakal,
                 new Point(4, 0), new Point(4, 11),
-                8, true
-            )       
+                6, true
+            )
+        },
+        {
+            "Respawn",
+            new Animation(
+                TextureLibrary.Batumbakal,
+                new Point(5, 0), new Point(5, 11),
+                8, true)
         }
     };
+
+    // public static Dictionary<string, Animation> RedGemAnimations = new Dictionary<string, Animation> {
+    //     {
+    //         "Default",
+    //         new Animation(
+    //             TextureLibrary.RedGem,
+    //             new Point(0, 0),
+    //             new Point(0, 10),
+    //             4
+    //         )
+    //     }
+    // };
 
 
     // CONSTRUCTORS

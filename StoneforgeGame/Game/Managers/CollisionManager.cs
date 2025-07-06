@@ -48,7 +48,7 @@ public class CollisionManager {
 
     public void AddRange(List<Character> characters) {
         foreach (Character character in characters) {
-            _colliders.Add(character.Collider);
+            _colliders.Add(character.GetCollisionBox());
         }
     }
 
@@ -58,12 +58,12 @@ public class CollisionManager {
         }
     }
 
-    public void Add(Point start, Point end, bool isSolid = true, bool isDamage = false, bool ignore = false) {
-        BoxCollider newBoxCollider = new BoxCollider(start, end, isSolid, isDamage);
+    public void Add(Point start, Point end, bool solid = true, bool damage = false, bool ignore = false) {
+        BoxCollider newBoxCollider = new BoxCollider(start, end, solid, damage);
         foreach (BoxCollider collider in _colliders) {
             if (collider.Bounds.Intersects(newBoxCollider.Bounds) && !ignore)
                 throw new ArgumentException(
-                    $"Box collider {newBoxCollider.Bounds.Location} {newBoxCollider.Bounds.Size}"
+                    $"Box collider {newBoxCollider.Bounds.Location} {newBoxCollider.Bounds.Size} "
                     + $"intersects with another box collider {collider.Bounds.Location} {collider.Bounds.Size}"
                 );
         }

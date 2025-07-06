@@ -58,18 +58,11 @@ public class Main : Microsoft.Xna.Framework.Game {
         FontLibrary.Load();
         TextureLibrary.Load();
         
-        Batumbakal batumbakal = new Batumbakal();
-
-        _sceneManager = new SceneManager([
-            new StageOne(batumbakal),
-            new StageTwo(batumbakal),
-            new StageThree(batumbakal)
-        ]);
-        
         // _sceneManager = new SceneManager(
         //     [_stageTwo]
         // );
         
+        _sceneManager = new SceneManager();
         _sceneManager.Load();
     }
 
