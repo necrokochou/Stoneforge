@@ -54,7 +54,7 @@ public class Batumbakal : Character {
 
 
     // METHODS
-    public override void Load(Rectangle window, Point location, int sizeMultiplier = 1) {
+    public override void Load(Rectangle window, Point location) {
         int frameWidth = Texture.Image.Width / Texture.Columns;
         int frameHeight = Texture.Image.Height / Texture.Rows;
         
@@ -64,19 +64,30 @@ public class Batumbakal : Character {
         );
         Destination = new Rectangle(
             location.X, location.Y,
-            frameWidth * sizeMultiplier, frameHeight * sizeMultiplier
+            frameWidth, frameHeight
         );
         Color = Color.White;
+        
+        float widthRatio = 0.8f;
+        float heightRatio = 1f;
+
+        int colliderWidth = (int)(Destination.Width * widthRatio);
+        int colliderHeight = (int)(Destination.Height * heightRatio);
+
+        int colliderX = Destination.X + (Destination.Width - colliderWidth) / 2;
+        int colliderY = Destination.Bottom - colliderHeight;
 
         CollisionBox = new BoxCollider(
-            Destination.Location,
-            Destination.Location + Destination.Size,
-            solid : false, owner : this
+            new Point(colliderX, colliderY),
+            new Point(colliderX + colliderWidth, colliderY + colliderHeight),
+            offsetRatio: new Vector2(widthRatio, heightRatio),
+            solid: false,
+            owner: this
         );
 
         MeleeRange = new Rectangle(
-            CollisionBox.Bounds.Right - CollisionBox.Bounds.Width / 2, CollisionBox.Bounds.Top,
-            CollisionBox.Bounds.Width / 2, CollisionBox.Bounds.Height
+            CollisionBox.Bounds.Right, CollisionBox.Bounds.Top,
+            CollisionBox.Bounds.Width, CollisionBox.Bounds.Height
         );
 
         _origin = location;
@@ -145,20 +156,21 @@ public class Batumbakal : Character {
             AttackCooldownTimer = AttackCooldown;
         }
         
+        if (IsFacingRight) {
+            MeleeRange.Location = new Point(
+                CollisionBox.Bounds.Right - CollisionBox.Bounds.Width / 2,
+                CollisionBox.Bounds.Top
+            );
+        } else {
+            MeleeRange.Location = new Point(
+                CollisionBox.Bounds.Left - MeleeRange.Width,
+                CollisionBox.Bounds.Top
+            );
+        }
+        
         if (IsAttacking && CurrentAnimation.IsFinished) {
-            if (IsFacingRight) {
-                MeleeRange.Location = new Point(
-                    CollisionBox.Bounds.Right - CollisionBox.Bounds.Width / 2,
-                    CollisionBox.Bounds.Top
-                );
-            } else {
-                MeleeRange.Location = new Point(
-                    CollisionBox.Bounds.Left - MeleeRange.Width,
-                    CollisionBox.Bounds.Top
-                );
-            }
 
-            MeleeRange.Size = new Point(CollisionBox.Bounds.Width / 2, CollisionBox.Bounds.Height);
+            MeleeRange.Size = new Point(CollisionBox.Bounds.Width, CollisionBox.Bounds.Height);
 
             CheckMeleeRange(stage);
             
@@ -244,6 +256,7 @@ public class Batumbakal : Character {
             flip,
             0f
         );
+        
         DrawAttributes(spriteBatch);
     }
 }

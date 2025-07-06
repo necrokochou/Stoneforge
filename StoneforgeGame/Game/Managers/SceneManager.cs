@@ -92,7 +92,7 @@ public class SceneManager {
         _currentScene.Update(gameTime);
 
         if (_currentScene is Stage currentStage &&
-            currentStage.ReachedNextSceneBounds &&
+            currentStage.GetReachedNextLocation() &&
             _currentSceneIndex < _lastStageIndex) {
 
             _currentScene.Unload();

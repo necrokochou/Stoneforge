@@ -40,10 +40,14 @@ public class StageTwo : Stage {
         if (Player.ActualPosition == Vector2.Zero) {
             Player.Load(Window, new Point(-100, 180));
         } else {
-            Player.Load(Window, Player.ActualPosition.ToPoint()); // ← preserves saved position
+            Player.Load(Window, Player.ActualPosition.ToPoint());
         }
-        
         CharacterManager.Add(Player);
+        
+        Enemy skeleton = new Skeleton();
+        skeleton.Load(Window, new Point(528, 315));
+        CharacterManager.Add(skeleton);
+        
         CollisionManager.AddRange(CharacterManager.Characters);
         
         CollisionManager.SetBorder(thickness: 90, top: true);

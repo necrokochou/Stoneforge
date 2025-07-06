@@ -36,7 +36,7 @@ public class Main : Microsoft.Xna.Framework.Game {
         Window.IsBorderless = true;
         Window.Title = "Stoneforge";
         Window.Position = Point.Zero;
-        IsMouseVisible = false;
+        IsMouseVisible = true;
         
         _graphics.ApplyChanges();
     }
@@ -71,6 +71,7 @@ public class Main : Microsoft.Xna.Framework.Game {
             Exit();
         
         KeyboardState keyState = Keyboard.GetState();
+        MouseState mouseState = Mouse.GetState();
 
         if (keyState.IsKeyDown(Keys.NumPad0) && !_wasFullscreenKeyPressed) {
             ToggleFullscreen();
@@ -78,6 +79,8 @@ public class Main : Microsoft.Xna.Framework.Game {
         _wasFullscreenKeyPressed = keyState.IsKeyDown(Keys.NumPad0);
         
         _sceneManager.Update(gameTime);
+        
+        Console.WriteLine(mouseState.Position);
         
         
         base.Update(gameTime);

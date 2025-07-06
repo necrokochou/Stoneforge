@@ -20,6 +20,7 @@ public abstract class Stage : Scene {
 
     protected string Name;
     protected Character Player;
+    protected List<Enemy> Enemies;
 
     protected Gravity Gravity;
 
@@ -46,9 +47,6 @@ public abstract class Stage : Scene {
     public ItemManager GetItemManager {
         get => ItemManager;
     }
-    public bool ReachedNextSceneBounds {
-        get => ReachedNextLocation;
-    }
 
 
     // METHODS
@@ -66,6 +64,10 @@ public abstract class Stage : Scene {
         ItemManager.Update(gameTime);
         
         ReachedNextLocation = NextSceneBounds.Contains(Player.GetCollisionBox().Bounds);
+
+        if (ReachedNextLocation) {
+            Player.ActualPosition = Vector2.Zero;
+        }
     }
     
     public override void Draw(SpriteBatch spriteBatch) {
@@ -78,5 +80,13 @@ public abstract class Stage : Scene {
     
     public string GetName() {
         return Name;
+    }
+
+    public Rectangle GetNextSceneBounds() {
+        return NextSceneBounds;
+    }
+    
+    public bool GetReachedNextLocation() {
+        return ReachedNextLocation;
     }
 }

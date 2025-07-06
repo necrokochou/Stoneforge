@@ -35,7 +35,7 @@ public class CollisionManager {
     public void Update() {
         foreach (BoxCollider collider in _colliders) {
             if (collider != null && collider.HasOwner) {
-                collider.Update(collider.Owner.Bounds);
+                collider.Update();
             }
         }
     }
@@ -58,15 +58,15 @@ public class CollisionManager {
         }
     }
 
-    public void Add(Point start, Point end, bool solid = true, bool damage = false, bool ignore = false) {
-        BoxCollider newBoxCollider = new BoxCollider(start, end, solid, damage);
-        foreach (BoxCollider collider in _colliders) {
-            if (collider.Bounds.Intersects(newBoxCollider.Bounds) && !ignore)
-                throw new ArgumentException(
-                    $"Box collider {newBoxCollider.Bounds.Location} {newBoxCollider.Bounds.Size} "
-                    + $"intersects with another box collider {collider.Bounds.Location} {collider.Bounds.Size}"
-                );
-        }
+    public void Add(Point start, Point end, Vector2 offset = default, bool solid = true, bool damage = false, bool ignore = false) {
+        BoxCollider newBoxCollider = new BoxCollider(start, end, offset, solid, damage);
+        // foreach (BoxCollider collider in _colliders) {
+        //     if (collider.Bounds.Intersects(newBoxCollider.Bounds) && !ignore)
+        //         throw new ArgumentException(
+        //             $"Box collider {newBoxCollider.Bounds.Location} {newBoxCollider.Bounds.Size} "
+        //             + $"intersects with another box collider {collider.Bounds.Location} {collider.Bounds.Size}"
+        //         );
+        // }
         
         _colliders.Add(newBoxCollider);
     }

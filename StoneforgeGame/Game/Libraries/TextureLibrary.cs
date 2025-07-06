@@ -21,6 +21,13 @@ public static class TextureLibrary {
     public static Texture BlueGem;
     public static Texture GreenGem;
     public static Texture Altar;
+    public static Texture SkeletonIdle;
+    public static Texture SkeletonWalk;
+    public static Texture SkeletonAttack;
+    public static Texture NightBorne;
+    public static Texture GolluxIdle;
+    public static Texture GolluxMove;
+    public static Texture GolluxAttack;
 
 
     // CONSTRUCTORS
@@ -35,7 +42,7 @@ public static class TextureLibrary {
 
     // METHODS
     public static void Load() {
-        #region Temporary Textures
+        #region --- Temporary Texture ---
         TempBackground = new Texture(
             _content.Load<Texture2D>("Assets/Textures/tempBackground"),
             1,
@@ -100,6 +107,30 @@ public static class TextureLibrary {
             _content.Load<Texture2D>("Assets/Textures/Altar"),
             1,
             2
+        );
+
+        SkeletonIdle = new Texture(
+            _content.Load<Texture2D>("Assets/Textures/SkeletonIdle"),
+            1,
+            4
+        );
+
+        SkeletonWalk = new Texture(
+            _content.Load<Texture2D>("Assets/Textures/SkeletonWalk"),
+            1,
+            4
+        );
+
+        SkeletonAttack = new Texture(
+            _content.Load<Texture2D>("Assets/Textures/SkeletonAttack"),
+            1,
+            8
+        );
+
+        NightBorne = new Texture(
+            _content.Load<Texture2D>("Assets/Textures/NightBorne"),
+            5,
+            23
         );
     }
 }

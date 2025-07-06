@@ -77,7 +77,7 @@ public abstract class Character {
 
 
     // METHODS
-    public abstract void Load(Rectangle window, Point location, int sizeMultiplier = 1);
+    public abstract void Load(Rectangle window, Point location);
 
     public abstract void Update(GameTime gameTime, Stage stage, Gravity gravity);
 
@@ -85,7 +85,7 @@ public abstract class Character {
 
     // protected void ApplyVelocity(Vector2 velocity, Vector2 direction, Gravity gravity) { }
 
-    protected void CheckState() {
+    protected virtual void CheckState() {
         IsInvincible = InvincibilityTimer > 0f;
         IsJumping = Velocity.Y < 0 && !IsOnGround;
         IsFalling = Velocity.Y > 0 && !IsOnGround;

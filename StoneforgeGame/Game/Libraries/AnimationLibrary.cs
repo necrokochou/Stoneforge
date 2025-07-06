@@ -74,6 +74,36 @@ public static class AnimationLibrary {
         }
     };
 
+    public static Dictionary<string, Animation> SkeletonAnimations = new Dictionary<string, Animation> {
+        {
+            "Idle",
+            new Animation(
+                TextureLibrary.SkeletonIdle,
+                new Point(0, 0),
+                new Point(0, 3),
+                8
+            )
+        },
+        {
+            "Walk",
+            new Animation(
+                TextureLibrary.SkeletonWalk,
+                new Point(0, 0),
+                new Point(0, 3),
+                8
+            )
+        },
+        {
+            "Attack",
+            new Animation(
+                TextureLibrary.SkeletonAttack,
+                new Point(0, 0),
+                new Point(0, 7),
+                4, true
+            )
+        }
+    };
+
     // public static Dictionary<string, Animation> RedGemAnimations = new Dictionary<string, Animation> {
     //     {
     //         "Default",

@@ -16,16 +16,18 @@ public class Animation {
     private Point _startFrame;
     private Point _endFrame;
     private bool _endOnLastFrame;
+    private int _skipFrame;
     private bool _isFinished;
 
 
     // CONSTRUCTORS
-    public Animation(Texture texture, Point startFrame, Point endFrame, int interval, bool endOnLastFrame = false) {
+    public Animation(Texture texture, Point startFrame, Point endFrame, int interval, bool endOnLastFrame = false, int skipFrame = 0) {
         _texture = texture;
         _startFrame = startFrame;
         _endFrame = endFrame;
         _interval = interval;
         _endOnLastFrame = endOnLastFrame;
+        _skipFrame = skipFrame;
         
         _rowIndex = _startFrame.X;
         _columnIndex = _startFrame.Y;
@@ -51,6 +53,7 @@ public class Animation {
 
     private void NextFrame() {
         _columnIndex++;
+        _columnIndex += _skipFrame;
         
         if (_columnIndex >= _texture.Columns) {
             _columnIndex = 0;

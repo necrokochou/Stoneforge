@@ -48,6 +48,7 @@ public class RockPile : ObjectTile {
         CollisionBox = new BoxCollider(
             Destination.Location,
             Destination.Location + Destination.Size,
+            
             solid : false
         );
         
@@ -68,5 +69,4 @@ public class RockPile : ObjectTile {
         if (IsDestroyed) return;
         Destroy();
     }
-
 }

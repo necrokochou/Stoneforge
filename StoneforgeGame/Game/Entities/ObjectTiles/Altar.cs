@@ -68,5 +68,4 @@ public class Altar : ObjectTile {
         if (IsDestroyed) return;
         Destroy();
     }
-
 }

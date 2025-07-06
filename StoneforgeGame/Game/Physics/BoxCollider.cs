@@ -17,6 +17,8 @@ public class BoxCollider {
     private Rectangle _nextVerticalDestination;
     private Color _color;
 
+    private Vector2 _offsetRatio;
+
     private Character _owner;
     private bool _hasOwner;
 
@@ -28,10 +30,12 @@ public class BoxCollider {
 
 
     // CONSTRUCTORS
-    public BoxCollider(Point start, Point end, bool solid = true, bool damage = false, Character owner = null) {
+    public BoxCollider(Point start, Point end, Vector2 offsetRatio = default, bool solid = true, bool damage = false, Character owner = null) {
         _destination = new Rectangle(
             start, end - start
         );
+
+        _offsetRatio = offsetRatio;
         
         _isSolid = solid;
         _isDamage = damage;
@@ -53,6 +57,9 @@ public class BoxCollider {
     public Rectangle NextVerticalBounds {
         get => _nextVerticalDestination;
     }
+    public Vector2 Offset {
+        get => _offsetRatio;
+    }
     public Character Owner {
         get => _owner;
     }
@@ -71,9 +78,18 @@ public class BoxCollider {
 
 
     // METHODS
-    public void Update(Rectangle destination) {
+    public void Update() {
+        int colliderWidth = (int)(_owner.Bounds.Width * _offsetRatio.X);
+        int colliderHeight = (int)(_owner.Bounds.Height * _offsetRatio.Y);
+
+        int colliderX = _owner.Bounds.X + (_owner.Bounds.Width - colliderWidth) / 2;
+        int colliderY = _owner.Bounds.Bottom - colliderHeight;
+
         _destination = new Rectangle(
-            destination.Location, destination.Size
+            colliderX,
+            colliderY,
+            colliderWidth,
+            colliderHeight
         );
     }
     

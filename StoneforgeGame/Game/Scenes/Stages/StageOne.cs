@@ -41,8 +41,8 @@ public class StageOne : Stage {
         } else {
             Player.Load(Window, Player.ActualPosition.ToPoint()); // ← preserves saved position
         }
-        
         CharacterManager.Add(Player);
+        
         CollisionManager.AddRange(CharacterManager.Characters);
         
         CollisionManager.SetBorder(bottom : true, left : true);
