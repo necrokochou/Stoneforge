@@ -11,8 +11,9 @@ namespace StoneforgeGame.Game.Scenes.Stages;
 
 public abstract class Stage : Scene {
     // FIELDS
-    protected CollisionManager CollisionManager;
-    protected CharacterManager CharacterManager;
+    protected CollisionManager CollisionManager = new CollisionManager();
+    protected ObjectTileManager ObjectTileManager = new ObjectTileManager();
+    protected CharacterManager CharacterManager = new CharacterManager();
 
     protected string Name;
     protected Character Player;
@@ -28,6 +29,15 @@ public abstract class Stage : Scene {
 
 
     // PROPERTIES
+    public CollisionManager GetCollisionManager {
+        get => CollisionManager;
+    }
+    public ObjectTileManager GetObjectTileManager {
+        get => ObjectTileManager;
+    }
+    public CharacterManager GetCharacterManager {
+        get => CharacterManager;
+    }
     public bool ReachedNextSceneBounds {
         get => ReachedNextLocation;
     }
@@ -35,12 +45,15 @@ public abstract class Stage : Scene {
 
     // METHODS
     public override void Unload() {
-        CollisionManager.Unload();
         CharacterManager.Unload();
+        CollisionManager.Unload();
+        ObjectTileManager.Unload();
     }
 
     public override void Update(GameTime gameTime) {
         CharacterManager.Update(gameTime, Gravity);
+        CollisionManager.Update();
+        ObjectTileManager.Update();
         
         ReachedNextLocation = NextSceneBounds.Contains(Player.Collider.Bounds);
     }
@@ -48,6 +61,7 @@ public abstract class Stage : Scene {
     public override void Draw(SpriteBatch spriteBatch) {
         Background.Draw(spriteBatch);
         CollisionManager.Draw(spriteBatch);
+        ObjectTileManager.Draw(spriteBatch);
         CharacterManager.Draw(spriteBatch);
     }
 }

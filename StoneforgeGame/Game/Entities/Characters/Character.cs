@@ -1,8 +1,12 @@
-﻿using Microsoft.Xna.Framework;
+﻿using System.Collections.Generic;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using StoneforgeGame.Game.Entities.Attributes;
+using StoneforgeGame.Game.Entities.ObjectTiles;
+using StoneforgeGame.Game.Libraries;
 using StoneforgeGame.Game.Managers;
 using StoneforgeGame.Game.Physics;
+using StoneforgeGame.Game.Scenes.Stages;
 using Texture = StoneforgeGame.Game.Graphics.Texture;
 
 
@@ -20,6 +24,7 @@ public abstract class Character {
     protected Health Health;
     
     protected BoxCollider CollisionBox;
+    protected Rectangle MeleeRange;
 
     protected float WalkSpeed;
     protected float JumpPower;
@@ -31,8 +36,9 @@ public abstract class Character {
     protected float AttackCooldownTimer;
     
     protected Vector2 GamePosition;
-    protected Vector2 ActualPosition;
+    public Vector2 ActualPosition;
     protected Vector2 NextPosition;
+    public Vector2 PreviousPosition;
     protected Vector2 Velocity;
     protected Vector2 Direction;
 
@@ -53,7 +59,10 @@ public abstract class Character {
     
 
     // PROPERTIES
-    public Health AttrHealth {
+    public Rectangle Bounds {
+        get => Destination;
+    }
+    public Health CurrentHealth {
         get => Health;
     }
     public BoxCollider Collider {
@@ -65,9 +74,9 @@ public abstract class Character {
 
 
     // METHODS
-    public abstract void Load(Rectangle window, Point position, int sizeMultiplier = 1);
+    public abstract void Load(Rectangle window, Point location, int sizeMultiplier = 1);
 
-    public abstract void Update(GameTime gameTime, CollisionManager collisionManager, Gravity gravity);
+    public abstract void Update(GameTime gameTime, Stage stage, Gravity gravity);
 
     public abstract void Draw(SpriteBatch spriteBatch);
 
@@ -101,8 +110,24 @@ public abstract class Character {
         } else {
             Velocity.Y = 0;
             IsOnGround = true;
-            IsJumping = false;
-            JumpCount = 2;
+        }
+    }
+
+    protected void CheckMeleeRange(Stage stage) {
+        var tilesToDestroy = new List<ObjectTile>();
+
+        foreach (ObjectTile objectTile in stage.GetObjectTileManager.ObjectTiles) {
+            if (objectTile != null &&
+                objectTile.IsDestroyable &&
+                objectTile.GetCollisionBox().Bounds.Intersects(MeleeRange)) {
+                tilesToDestroy.Add(objectTile);
+            }
+        }
+
+        foreach (ObjectTile objectTile in tilesToDestroy) {
+            stage.GetCollisionManager.Remove(objectTile.GetCollisionBox());
+            objectTile.OnDestroy();
+            stage.GetObjectTileManager.Remove(objectTile);
         }
     }
 

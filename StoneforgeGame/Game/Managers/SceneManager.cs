@@ -14,8 +14,8 @@ public class SceneManager {
     private List<Scene> _scenes;
     private int _currentSceneIndex;
     private Scene _currentScene;
-    private int firstStageIndex;
-    private int lastStageIndex;
+    private int _firstStageIndex;
+    private int _lastStageIndex;
 
 
     // CONSTRUCTORS
@@ -29,11 +29,11 @@ public class SceneManager {
             if (scene is Stage) {
                 stageCount++;
                 if (stageCount == 1) {
-                    firstStageIndex = _scenes.IndexOf(scene);
+                    _firstStageIndex = _scenes.IndexOf(scene);
                 }
             }
         }
-        lastStageIndex = _scenes.IndexOf(scenes[firstStageIndex + stageCount - 1]);
+        _lastStageIndex = _scenes.IndexOf(scenes[_firstStageIndex + stageCount - 1]);
     }
 
 
@@ -54,7 +54,7 @@ public class SceneManager {
         _currentScene.Update(gameTime);
         
         if (_currentScene is Stage currentStage) {
-            if (currentStage.ReachedNextSceneBounds && _currentSceneIndex < lastStageIndex) {
+            if (currentStage.ReachedNextSceneBounds && _currentSceneIndex < _lastStageIndex) {
                 _currentScene.Unload();
                 _currentSceneIndex++;
                 _currentScene = _scenes[_currentSceneIndex];

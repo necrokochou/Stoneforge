@@ -2,6 +2,7 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using StoneforgeGame.Game.Entities.Characters;
+using StoneforgeGame.Game.Entities.ObjectTiles;
 using StoneforgeGame.Game.Managers;
 using StoneForgeGame.Game.Utilities;
 
@@ -16,10 +17,12 @@ public class BoxCollider {
     private Rectangle _nextVerticalDestination;
     private Color _color;
 
+    private Character _owner;
+    private bool _hasOwner;
+    
     private bool _isSolid;
     private bool _isDamage;
 
-    private Character _owner;
 
 
     // CONSTRUCTORS
@@ -30,6 +33,7 @@ public class BoxCollider {
         _isSolid = solid;
         _isDamage = damage;
         _owner = owner;
+        _hasOwner = owner != null;
 
         _color = Color.Red;
     }
@@ -44,6 +48,15 @@ public class BoxCollider {
     public Rectangle NextVerticalBounds {
         get => _nextVerticalDestination;
     }
+    public Character Owner {
+        get => _owner;
+    }
+    public bool HasOwner {
+        get => _hasOwner;
+    }
+    public bool IsSolid {
+        get => _isSolid;
+    }
     public bool IsDamage {
         get => _isDamage;
     }
@@ -51,7 +64,9 @@ public class BoxCollider {
 
     // METHODS
     public void Update(Rectangle destination) {
-        _destination = destination;
+        _destination = new Rectangle(
+            destination.Location, destination.Size
+        );
     }
     
     public void Draw(SpriteBatch spriteBatch, int thickness) {
@@ -79,7 +94,7 @@ public class BoxCollider {
             if (this != collider && collider.Bounds.Intersects(nextIntendedBounds)) {
                 if (_owner != null) {
                     if (_owner.CanGetHit && collider._isDamage) {
-                        _owner.AttrHealth.Decrease(5);
+                        _owner.CurrentHealth.Decrease(5);
                     }
                 }
                 

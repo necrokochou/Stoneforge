@@ -23,12 +23,6 @@ public class Main : Microsoft.Xna.Framework.Game {
     private bool _wasFullscreenKeyPressed;
     
     private SceneManager _sceneManager;
-    
-    private Stage _stageOne;
-    private Stage _stageTwo;
-    private Stage _stageThree;
-    
-    private Batumbakal _batumbakal;
 
     public Main() {
         _graphics = new GraphicsDeviceManager(this);
@@ -64,15 +58,13 @@ public class Main : Microsoft.Xna.Framework.Game {
         FontLibrary.Load();
         TextureLibrary.Load();
         
-        _batumbakal = new Batumbakal();
+        Batumbakal batumbakal = new Batumbakal();
 
-        _stageOne = new StageOne(_batumbakal);
-        _stageTwo = new StageTwo(_batumbakal);
-        _stageThree = new StageThree(_batumbakal);
-
-        _sceneManager = new SceneManager(
-            [_stageOne, _stageTwo, _stageThree]
-        );
+        _sceneManager = new SceneManager([
+            new StageOne(batumbakal),
+            new StageTwo(batumbakal),
+            new StageThree(batumbakal)
+        ]);
         
         // _sceneManager = new SceneManager(
         //     [_stageTwo]

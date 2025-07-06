@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using StoneforgeGame.Game.Entities.Characters;
+using StoneforgeGame.Game.Entities.ObjectTiles;
 using StoneforgeGame.Game.Physics;
 using StoneforgeGame.Game.Scenes;
 using StoneForgeGame.Game.Utilities;
@@ -29,6 +31,14 @@ public class CollisionManager {
     public void Unload() {
         _colliders.Clear();
     }
+
+    public void Update() {
+        foreach (BoxCollider collider in _colliders) {
+            if (collider != null && collider.HasOwner) {
+                collider.Update(collider.Owner.Bounds);
+            }
+        }
+    }
     
     public void Draw(SpriteBatch spriteBatch) {
         foreach (BoxCollider collider in _colliders) {
@@ -36,10 +46,18 @@ public class CollisionManager {
         }
     }
 
-    public void Add(BoxCollider boxCollider) {
-        _colliders.Add(boxCollider);
+    public void AddRange(List<Character> characters) {
+        foreach (Character character in characters) {
+            _colliders.Add(character.Collider);
+        }
     }
-    
+
+    public void AddRange(List<ObjectTile> objectTiles) {
+        foreach (ObjectTile objectTile in objectTiles) {
+            _colliders.Add(objectTile.GetCollisionBox());
+        }
+    }
+
     public void Add(Point start, Point end, bool isSolid = true, bool isDamage = false, bool ignore = false) {
         BoxCollider newBoxCollider = new BoxCollider(start, end, isSolid, isDamage);
         foreach (BoxCollider collider in _colliders) {
@@ -53,8 +71,8 @@ public class CollisionManager {
         _colliders.Add(newBoxCollider);
     }
 
-    public void AddSquare(Point start, int width, int height, bool isSolid = true, bool isDamage = false) {
-        Add(start, new Point(start.X + width, start.Y + height), isSolid, isDamage);
+    public void Remove(BoxCollider boxCollider) {
+        _colliders.Remove(boxCollider);
     }
 
     public void SetBorder(int thickness = 0, bool top = false, bool bottom = false, bool left = false, bool right = false, bool all = false) {
@@ -88,12 +106,4 @@ public class CollisionManager {
         if (left) _colliders.Add(leftBorder);
         if (right) _colliders.Add(rightBorder);
     }
-
-    // public static float CheckCollision(float velocity, float deltaTime, Rectangle nextIntendedBounds) {
-    //     if (!HasCollided(nextIntendedBounds)) {
-    //         return velocity * deltaTime;
-    //     }
-    //
-    //     return 0;
-    // }
 }

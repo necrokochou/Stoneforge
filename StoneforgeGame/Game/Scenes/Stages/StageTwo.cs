@@ -17,16 +17,10 @@ public class StageTwo : Stage {
 
     // CONSTRUCTORS
     public StageTwo(Character character) {
-        CollisionManager = new CollisionManager();
         Name = "Heart of the Mountain";
         Player = character;
 
         ReachedNextLocation = false;
-
-        Gravity = new Gravity(
-            magnitude : 980f,
-            direction : new Vector2(0, 1)
-        );
     }
 
 
@@ -37,7 +31,16 @@ public class StageTwo : Stage {
     // METHODS
     public override void Load() {
         Background = new Background(TextureLibrary.StageTwoBackground, Window.Size);
+        
+        Gravity = new Gravity(
+            magnitude: 980f,
+            direction: new Vector2(0, 1)
+        );
 
+        Player.Load(Window, new Point(-100, 180));
+        CharacterManager.Add(Player);
+        CollisionManager.AddRange(CharacterManager.Characters);
+        
         CollisionManager.SetBorder(thickness: 90, top: true);
         CollisionManager.SetBorder(thickness : 96, right : true);
         CollisionManager.Add(new Point(0, 0), new Point(1920, 90), ignore : true);
@@ -53,11 +56,8 @@ public class StageTwo : Stage {
         CollisionManager.Add(new Point(1056, 270), new Point(1632, 360));
         CollisionManager.Add(new Point(384, 720), new Point(1824, 810));
         CollisionManager.Add(new Point(1440, 630), new Point(1824, 720));
-
-        Player.Load(Window, new Point(-100, 180));
-        CollisionManager.Add(Player.Collider);
-        CharacterManager = new CharacterManager(CollisionManager);
-        CharacterManager.Add(Player);
+        
+        CharacterManager.Load(this);
 
         NextSceneBounds = new Rectangle(new Point(0, 1080), new Point(1920, 1280));
     }
