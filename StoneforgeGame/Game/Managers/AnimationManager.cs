@@ -19,6 +19,9 @@ public class AnimationManager {
 
 
     // PROPERTIES
+    public Dictionary<string, Animation> Animations {
+        get => _animations;
+    }
     public Animation CurrentAnimation {
         get => _currentAnimation;
     }

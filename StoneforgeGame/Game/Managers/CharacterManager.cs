@@ -1,10 +1,9 @@
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using StoneforgeGame.Game.Entities;
 using StoneforgeGame.Game.Entities.Characters;
-using StoneforgeGame.Game.Managers;
 using StoneforgeGame.Game.Physics;
+using StoneforgeGame.Game.Scenes.Stages;
 
 
 namespace StoneForgeGame.Game.Managers;
@@ -13,22 +12,25 @@ namespace StoneForgeGame.Game.Managers;
 public class CharacterManager {
     // FIELDS
     private List<Character> _characters = new List<Character>();
-    private CollisionManager _collisionManager;
+    
+    private Stage _stage;
+
+    private bool _debug = true;
 
 
     // CONSTRUCTORS
-    public CharacterManager(CollisionManager collisionManager) {
-        _collisionManager = collisionManager;
-    }
-
-
-    // PROPERTIES
     
 
 
+    // PROPERTIES
+    public List<Character> Characters {
+        get => _characters;
+    }
+
+
     // METHODS
-    public void Load() {
-        
+    public void Load(Stage stage) {
+        _stage = stage;
     }
 
     public void Unload() {
@@ -37,12 +39,13 @@ public class CharacterManager {
     
     public void Update(GameTime gameTime, Gravity gravity) {
         foreach (Character character in _characters) {
-            character.Update(gameTime, _collisionManager, gravity);
+            character.Update(gameTime, _stage, gravity);
         }
     }
 
     public void Draw(SpriteBatch spriteBatch) {
         foreach (Character character in _characters) {
+            if (_debug) character.GetCollisionBox().Draw(spriteBatch, 2);
             character.Draw(spriteBatch);
         }
     }

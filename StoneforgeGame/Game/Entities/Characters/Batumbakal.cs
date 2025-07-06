@@ -6,6 +6,9 @@ using StoneforgeGame.Game.Graphics;
 using StoneforgeGame.Game.Libraries;
 using StoneforgeGame.Game.Managers;
 using StoneforgeGame.Game.Physics;
+using StoneforgeGame.Game.Scenes.Stages;
+using StoneforgeGame.Game.Utilities;
+using StoneForgeGame.Game.Utilities;
 using Color = Microsoft.Xna.Framework.Color;
 using Point = Microsoft.Xna.Framework.Point;
 using Rectangle = Microsoft.Xna.Framework.Rectangle;
@@ -29,15 +32,18 @@ public class Batumbakal : Character {
         Texture = TextureLibrary.Batumbakal;
         
         Name = "Batumbakal";
-        Health = new Health(100);
+        Health = new Health(30);
         
         WalkSpeed = 200f;
-        JumpPower = 500f;
+        JumpPower = 550f;
         JumpCount = 2;
         InvincibilityFrames = 3f;
-        AttackCooldown = 3f;
+        AttackCooldown = 1f;
         
         IsFacingRight = true;
+        
+        CanJump = true;
+        CanMove = true;
     }
 
 
@@ -48,7 +54,7 @@ public class Batumbakal : Character {
 
 
     // METHODS
-    public override void Load(Rectangle window, Point position, int sizeMultiplier = 1) {
+    public override void Load(Rectangle window, Point location) {
         int frameWidth = Texture.Image.Width / Texture.Columns;
         int frameHeight = Texture.Image.Height / Texture.Rows;
         
@@ -57,27 +63,43 @@ public class Batumbakal : Character {
             frameWidth, frameHeight
         );
         Destination = new Rectangle(
-            position.X, position.Y,
-            frameWidth * sizeMultiplier, frameHeight * sizeMultiplier
+            location.X, location.Y,
+            frameWidth, frameHeight
         );
         Color = Color.White;
+        
+        float widthRatio = 0.8f;
+        float heightRatio = 1f;
+
+        int colliderWidth = (int)(Destination.Width * widthRatio);
+        int colliderHeight = (int)(Destination.Height * heightRatio);
+
+        int colliderX = Destination.X + (Destination.Width - colliderWidth) / 2;
+        int colliderY = Destination.Bottom - colliderHeight;
 
         CollisionBox = new BoxCollider(
-            Destination.Location,
-            Destination.Size - Destination.Location,
-            false, false, this
+            new Point(colliderX, colliderY),
+            new Point(colliderX + colliderWidth, colliderY + colliderHeight),
+            offsetRatio: new Vector2(widthRatio, heightRatio),
+            solid: false,
+            owner: this
         );
 
-        _origin = position;
+        MeleeRange = new Rectangle(
+            CollisionBox.Bounds.Right, CollisionBox.Bounds.Top,
+            CollisionBox.Bounds.Width, CollisionBox.Bounds.Height
+        );
+
+        _origin = location;
         if (_origin.X < 0 || _origin.X >= window.Right - Source.Width) _origin.X = 0;
         if (_origin.Y < 0 || _origin.Y >= window.Bottom - Source.Height) _origin.Y = 0;
-        ActualPosition = position.ToVector2();
+        ActualPosition = location.ToVector2();
 
         AnimationManager = new AnimationManager(AnimationLibrary.BatumbakalAnimations);
         AnimationManager.Play("Idle");
     }
 
-    public override void Update(GameTime gameTime, CollisionManager collisionManager, Gravity gravity) { 
+    public override void Update(GameTime gameTime, Stage stage, Gravity gravity) { 
         float deltaTime = (float) gameTime.ElapsedGameTime.TotalSeconds;
         _input.Update();
 
@@ -96,26 +118,34 @@ public class Batumbakal : Character {
         #endregion
         
         #region --- MOVEMENT ---
-        Direction = Vector2.Zero;
-        if (_input.MoveLeft) {
-            Direction.X -= 1;
-            IsFacingRight = false;
-        } else if (_input.MoveRight) {
-            Direction.X += 1;
-            IsFacingRight = true;
+        if (CanMove) {
+            Direction = Vector2.Zero;
+            if (_input.MoveLeft) {
+                Direction.X -= 1;
+                IsFacingRight = false;
+            } else if (_input.MoveRight) {
+                Direction.X += 1;
+                IsFacingRight = true;
+            }
         }
         #endregion
         
         #region --- JUMP ---
-        if (_input.PressJump && JumpCount > 0 && !_isHoldingJump) {
-            Velocity.Y = -JumpPower;
-            _isHoldingJump = true;
-            JumpCount--;
-            Direction.Y = -1;
-        }
+        if (CanJump) {
+            if (_input.PressJump && JumpCount > 0 && !_isHoldingJump) {
+                Velocity.Y = -JumpPower;
+                _isHoldingJump = true;
+                JumpCount--;
+                Direction.Y = -1;
+            }
 
-        if (_input.ReleaseJump) {
-            _isHoldingJump = false;
+            if (_input.ReleaseJump) {
+                _isHoldingJump = false;
+
+                if (IsOnGround && !IsJumping) {
+                    JumpCount = 2;
+                }
+            }
         }
         #endregion
 
@@ -126,8 +156,27 @@ public class Batumbakal : Character {
             AttackCooldownTimer = AttackCooldown;
         }
         
+        if (IsFacingRight) {
+            MeleeRange.Location = new Point(
+                CollisionBox.Bounds.Right - CollisionBox.Bounds.Width / 2,
+                CollisionBox.Bounds.Top
+            );
+        } else {
+            MeleeRange.Location = new Point(
+                CollisionBox.Bounds.Left - MeleeRange.Width,
+                CollisionBox.Bounds.Top
+            );
+        }
+        
         if (IsAttacking && CurrentAnimation.IsFinished) {
+
+            MeleeRange.Size = new Point(CollisionBox.Bounds.Width, CollisionBox.Bounds.Height);
+
+            CheckMeleeRange(stage);
+            
             IsAttacking = false;
+            MeleeRange.Location = Point.Zero;
+            MeleeRange.Size = Point.Zero;
         }
 
         if (!IsAttacking && AttackCooldownTimer > 0f) {
@@ -158,7 +207,7 @@ public class Batumbakal : Character {
 
         #region --- VELOCITY ---
         Velocity.X = Direction.X * WalkSpeed;
-        Velocity.Y += gravity.Magnitude * deltaTime;
+        Velocity += gravity.Force * deltaTime;
         // Velocity = Vector2.Clamp(Velocity, Vector2.Zero, new Vector2(WalkSpeed, gravity.Magnitude));
         if (IsAttacking) {
             Velocity *= 0.2f;
@@ -169,22 +218,34 @@ public class Batumbakal : Character {
         NextPosition.X = ActualPosition.X + Velocity.X * deltaTime;
         NextPosition.Y = ActualPosition.Y + Velocity.Y * deltaTime;
         CollisionBox.GetNextBounds(ActualPosition, NextPosition);
-        CheckCollision(collisionManager);
+        CheckCollision(stage.GetCollisionManager);
         #endregion
         
         #region --- POSITION ---
         Destination.Location = ActualPosition.ToPoint();
         UpdateGamePos();
-        CollisionBox.Update(Destination);
         #endregion
         
         AnimationManager.Update();
+        
+        #region --- SAVE DATA ---
+        if (_input.KeybindSave) {
+            SaveData saveData = new SaveData {
+                CurrentScene = stage.GetName(),
+                PositionX = ActualPosition.X,
+                PositionY = ActualPosition.Y,
+                CurrentHealth = Health.Current,
+                MaximumHealth = Health.Maximum
+            };
+
+            SaveManager.Save(saveData);
+        }
+        #endregion
     }
 
     public override void Draw(SpriteBatch spriteBatch) {
         SpriteEffects flip = IsFacingRight ? SpriteEffects.None : SpriteEffects.FlipHorizontally;
         
-        CollisionBox.Draw(spriteBatch, 2);
         spriteBatch.Draw(
             Texture.Image,
             Destination,
@@ -195,6 +256,7 @@ public class Batumbakal : Character {
             flip,
             0f
         );
+        
         DrawAttributes(spriteBatch);
     }
 }

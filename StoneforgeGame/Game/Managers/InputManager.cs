@@ -15,7 +15,8 @@ public class InputManager {
     private bool _pressJump;
     private bool _releaseJump;
     private bool _pressAttack;
-    private bool _releaseAttack;
+
+    private bool _keybindSave;
     
     private bool _reset;
     private bool _teleport;
@@ -43,8 +44,9 @@ public class InputManager {
     public bool PressAttack {
         get => _pressAttack;
     }
-    public bool ReleaseAttack {
-        get => _releaseAttack;
+    
+    public bool KeybindSave {
+        get => _keybindSave;
     }
     
     public bool Reset {
@@ -68,7 +70,8 @@ public class InputManager {
         _pressJump = _keyState.IsKeyDown(Keys.Space);
         _releaseJump = _keyState.IsKeyUp(Keys.Space);
         _pressAttack = _mouseState.LeftButton == ButtonState.Pressed;
-        _releaseAttack = _mouseState.LeftButton == ButtonState.Released;
+        
+        _keybindSave = _keyState.IsKeyDown(Keys.LeftControl) && _keyState.IsKeyDown(Keys.S);
         
         _reset = _keyState.IsKeyDown(Keys.R);
         _teleport = _keyState.IsKeyDown(Keys.T);

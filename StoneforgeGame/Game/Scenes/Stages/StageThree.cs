@@ -1,5 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using StoneforgeGame.Game.Entities.Characters;
+using StoneforgeGame.Game.Entities.ObjectTiles;
 using StoneforgeGame.Game.Libraries;
 using StoneforgeGame.Game.Managers;
 using StoneForgeGame.Game.Managers;
@@ -17,16 +18,10 @@ public class StageThree : Stage {
     
     // CONSTRUCTORS
     public StageThree(Character character) {
-        CollisionManager = new CollisionManager();
-        Name = "Heart of the Mountain";
+        Name = "Forgotten Library";
         Player = character;
         
         ReachedNextLocation = false;
-        
-        Gravity = new Gravity(
-            magnitude: 980f,
-            direction: new Vector2(0, 1)
-        );
     }
 
 
@@ -37,6 +32,20 @@ public class StageThree : Stage {
     // METHODS
     public override void Load() {
         Background = new Background(TextureLibrary.StageThreeBackground, Window.Size);
+        
+        Gravity = new Gravity(
+            magnitude: 980f,
+            direction: new Vector2(0, 1)
+        );
+        
+        if (Player.ActualPosition == Vector2.Zero) {
+            Player.Load(Window, new Point(1680, -100));
+        } else {
+            Player.Load(Window, Player.ActualPosition.ToPoint()); // ← preserves saved position
+        }
+        
+        CharacterManager.Add(Player);
+        CollisionManager.AddRange(CharacterManager.Characters);
         
         CollisionManager.SetBorder(thickness : 90, bottom : true);
         CollisionManager.SetBorder(thickness: 96, left : true, right : true);
@@ -54,11 +63,9 @@ public class StageThree : Stage {
         CollisionManager.Add(new Point(1440, 720), new Point(1536, 990));
         CollisionManager.Add(new Point(1536, 630), new Point(1824, 990));
         
-        Player.Load(Window, new Point(1632, -100));
-        if (!CollisionManager.Colliders.Contains(Player.Collider))
-            CollisionManager.Add(Player.Collider);
-        CharacterManager = new CharacterManager(CollisionManager);
-        CharacterManager.Add(Player);
+        ObjectTileManager.Add(new Altar(this), new Point(1632, 492), new Point(144, 144));
+        
+        CharacterManager.Load(this);
 
         NextSceneBounds = new Rectangle(0, 0, 0, 0);
     }
