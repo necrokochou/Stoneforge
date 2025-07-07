@@ -16,6 +16,8 @@ public class RockPile : ObjectTile {
     // CONSTRUCTORS
     public RockPile(Stage stage) {
         Texture = TextureLibrary.RockPile;
+        
+        Size = new Point(108, 68);
 
         Stage = stage;
         
@@ -28,36 +30,29 @@ public class RockPile : ObjectTile {
 
 
     // METHODS
-    public override void Load(Point location, Point size = default) {
+    public override void Load(Point location) {
         int frameWidth = Texture.Image.Width / Texture.Columns;
         int frameHeight = Texture.Image.Height / Texture.Rows;
-        
-        if (size == default) size = new Point(frameWidth, frameHeight);
         
         Source = new Rectangle(
             frameWidth * 0, frameHeight * 0,
             frameWidth, frameHeight
         );
+        
         Destination = new Rectangle(
-            location.X, location.Y,
-            size.X, size.Y
+            location, Size
         );
+        
         Color = Color.White;
 
         CollisionBox = new BoxCollider(
-            Destination.Location,
-            Destination.Location + Destination.Size,
-            
+            location, location + Size,
             solid : false
         );
         
         // ActualPosition = location.ToVector2();
         //
         // AnimationManager = null;
-    }
-
-    public override void Update() {
-        
     }
 
     public override void Draw(SpriteBatch spriteBatch) {

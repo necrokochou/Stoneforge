@@ -106,7 +106,7 @@ public static class TextureLibrary {
         Altar = new Texture(
             _content.Load<Texture2D>("Assets/Textures/Altar"),
             1,
-            2
+            11
         );
 
         SkeletonIdle = new Texture(

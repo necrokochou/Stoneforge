@@ -28,40 +28,42 @@ public abstract class Enemy : Character {
 
 
     // METHODS
-    public override void Load(Rectangle window, Point location) { }
+    public override void Load(Point location) { }
 
     public override void Update(GameTime gameTime, Stage stage, Gravity gravity) { }
 
     public override void Draw(SpriteBatch spriteBatch) { }
 
-    protected virtual void Patrol(float deltaTime) {
+    protected virtual void Patrol(float deltaTime, Gravity gravity, Stage stage) {
         IsPatrolling = true;
-        
+    
         Vector2 target = PatrolPoints[PatrolPointIndex];
         float distance = target.X - ActualPosition.X;
-        
-        if (distance > -5f && distance < 5f) {
+
+        if (Math.Abs(distance) < 5f) {
             ActualPosition.X = target.X;
-            PatrolPointIndex = (PatrolPointIndex + 1);
-            if (PatrolPointIndex >= PatrolPoints.Count) {
-                PatrolPointIndex = 0;
-            }
+            PatrolPointIndex = (PatrolPointIndex + 1) % PatrolPoints.Count;
             return;
         }
-        
-        if (distance < 0) {
-            Direction.X = -1f;
-            IsFacingRight = false;
-        } else if (distance > 0) {
-            Direction.X = 1f;
-            IsFacingRight = true;
-        } else {
-            Direction.X = 0f;
+
+        if (CanMove) {
+            if (distance < 0) {
+                Direction.X -= 1;
+                IsFacingRight = false;
+            } else {
+                Direction.X += 1;
+                IsFacingRight = true;
+            }
         }
-        
+
         Velocity.X = IsAttacking ? 0 : Direction.X * WalkSpeed;
-        ActualPosition.X += Velocity.X * deltaTime;
-        
+        Velocity += gravity.Force * deltaTime;
+
+        NextPosition.X = ActualPosition.X + Velocity.X * deltaTime;
+        NextPosition.Y = ActualPosition.Y + Velocity.Y * deltaTime;
+        CollisionBox.GetNextBounds(ActualPosition, NextPosition);
+        CheckCollision(stage.GetCollisionManager);
+
         Destination.Location = ActualPosition.ToPoint();
     }
 }

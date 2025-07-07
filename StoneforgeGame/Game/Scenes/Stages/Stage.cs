@@ -18,7 +18,6 @@ public abstract class Stage : Scene {
 
     protected string Name;
     protected Character Player;
-    protected List<Enemy> Enemies;
 
     protected Gravity Gravity;
 
@@ -55,13 +54,26 @@ public abstract class Stage : Scene {
         CharacterManager.Update(gameTime, Gravity);
         CollisionManager.Update();
         ObjectTileManager.Update();
-        
-        ReachedNextLocation = NextSceneBounds.Contains(Player.GetCollisionBox().Bounds);
 
+        var charactersToRemove = new List<Character>();
+
+        foreach (Character character in CharacterManager.Characters) {
+            if (character.IsDead) {
+                CollisionManager.Remove(character.GetCollisionBox());
+                charactersToRemove.Add(character);
+            }
+        }
+
+        foreach (Character character in charactersToRemove) {
+            CharacterManager.Remove(character);
+        }
+
+        ReachedNextLocation = NextSceneBounds.Contains(Player.GetCollisionBox().Bounds);
         if (ReachedNextLocation) {
             Player.ActualPosition = Vector2.Zero;
         }
     }
+
     
     public override void Draw(SpriteBatch spriteBatch) {
         Background.Draw(spriteBatch);

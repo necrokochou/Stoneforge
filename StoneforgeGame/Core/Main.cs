@@ -80,8 +80,6 @@ public class Main : Microsoft.Xna.Framework.Game {
         
         _sceneManager.Update(gameTime);
         
-        Console.WriteLine(mouseState.Position);
-        
         
         base.Update(gameTime);
     }

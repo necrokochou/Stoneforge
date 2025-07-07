@@ -37,9 +37,9 @@ public class StageOne : Stage {
         );
         
         if (Player.ActualPosition == Vector2.Zero) {
-            Player.Load(Window, new Point(200, 800));
+            Player.Load(new Point(200, 800));
         } else {
-            Player.Load(Window, Player.ActualPosition.ToPoint()); // ← preserves saved position
+            Player.Load(Player.ActualPosition.ToPoint()); // ← preserves saved position
         }
         CharacterManager.Add(Player);
         
@@ -57,7 +57,7 @@ public class StageOne : Stage {
         CollisionManager.Add(new Point(1440, 228), new Point(1536, 276));
         CollisionManager.Add(new Point(1664, 228), new Point(2120, 276));
         
-        ObjectTileManager.Add(new RockPile(this), new Point(1728, 886), new Point(108, 68));
+        ObjectTileManager.Add(new RockPile(this), new Point(1728, 886));
         CollisionManager.AddRange(ObjectTileManager.ObjectTiles);
         
         CharacterManager.Load(this);
