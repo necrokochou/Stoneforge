@@ -6,6 +6,7 @@ Click left mouse button to attack or destroy objects.
 Press E key to interact with certain objects.
 Ctrl + S to save game.
 
+
 Goal:
 Mine rock piles to get Gems.
 Take down enemies (optional).
