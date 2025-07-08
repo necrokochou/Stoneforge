@@ -104,18 +104,6 @@ public static class AnimationLibrary {
         }
     };
 
-    // public static Dictionary<string, Animation> RedGemAnimations = new Dictionary<string, Animation> {
-    //     {
-    //         "Default",
-    //         new Animation(
-    //             TextureLibrary.RedGem,
-    //             new Point(0, 0),
-    //             new Point(0, 10),
-    //             4
-    //         )
-    //     }
-    // };
-
 
     // CONSTRUCTORS
 

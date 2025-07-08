@@ -2,6 +2,7 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using StoneforgeGame.Game.Entities.ObjectTiles;
+using StoneForgeGame.Game.Utilities;
 
 
 namespace StoneforgeGame.Game.Managers;
@@ -9,20 +10,22 @@ namespace StoneforgeGame.Game.Managers;
 
 public class ObjectTileManager {
     // FIELDS
-    private List<ObjectTile> _objectTiles;
+    private List<ObjectTile> _objectTiles = new List<ObjectTile>();
+    private List<ObjectTile> _destroyedObjectTiles = new List<ObjectTile>();
     
     private bool _debug = false;
 
 
     // CONSTRUCTORS
-    public ObjectTileManager() {
-        _objectTiles = new List<ObjectTile>();
-    }
-
+    
+    
 
     // PROPERTIES
     public List<ObjectTile> ObjectTiles {
         get => _objectTiles;
+    }
+    public List<ObjectTile> DestroyedObjectTiles {
+        get => _destroyedObjectTiles;
     }
 
 
@@ -39,7 +42,7 @@ public class ObjectTileManager {
         for (int i = _objectTiles.Count - 1; i >= 0; i--) {
             var tile = _objectTiles[i];
             tile?.Update();
-            tile?.DebugDragTile();
+            if (MyDebug.IsDebug) tile?.DebugDragTile();
             if (tile?.IsDestroyed == true) {
                 _objectTiles.RemoveAt(i);
             }
@@ -53,7 +56,7 @@ public class ObjectTileManager {
         }
     }
 
-    private void Add(ObjectTile objectTile) {
+    public void Add(ObjectTile objectTile) {
         _objectTiles.Add(objectTile);
     }
 
@@ -64,6 +67,7 @@ public class ObjectTileManager {
     }
 
     public void Remove(ObjectTile objectTile) {
+        _destroyedObjectTiles.Add(objectTile);
         _objectTiles.Remove(objectTile);
     }
 }

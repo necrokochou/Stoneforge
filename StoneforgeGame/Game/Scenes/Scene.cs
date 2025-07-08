@@ -10,6 +10,7 @@ namespace StoneforgeGame.Game.Scenes;
 public abstract class Scene {
     // FIELDS
     // --- INSTANCE FIELDS ---
+    protected string Name;
     protected Background Background;
     public bool IsFinished;
     
@@ -22,6 +23,7 @@ public abstract class Scene {
 
 
     // PROPERTIES
+    // --- STATIC PROPERTIES ---
     public static Rectangle Window {
         get => _window;
         set => _window = value;
@@ -37,4 +39,8 @@ public abstract class Scene {
     public abstract void Update(GameTime gameTime);
 
     public abstract void Draw(SpriteBatch spriteBatch);
+
+    public string GetName() {
+        return Name;
+    }
 }

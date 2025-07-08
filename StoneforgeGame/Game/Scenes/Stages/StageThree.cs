@@ -1,4 +1,6 @@
-﻿using Microsoft.Xna.Framework;
+﻿using System.Collections.Generic;
+using Microsoft.Xna.Framework;
+using StoneforgeGame.Game.Data;
 using StoneforgeGame.Game.Entities.Characters;
 using StoneforgeGame.Game.Entities.ObjectTiles;
 using StoneforgeGame.Game.Libraries;
@@ -34,6 +36,13 @@ public class StageThree : Stage {
 
     // METHODS
     public override void Load() {
+        SaveData saveData = SaveManager.Load();
+        if (saveData == null) {
+            saveData = new SaveData();
+            saveData.DefeatedEnemies = new List<string>();
+            saveData.DestroyedObjectTiles = new List<string>();
+        }
+        
         Background = new Background(TextureLibrary.StageThreeBackground, Window.Size);
         
         Gravity = new Gravity(
@@ -51,12 +60,16 @@ public class StageThree : Stage {
         Enemy skeleton1 = new Skeleton();
         skeleton1.Load(new Point(595, 155));
         skeleton1.PatrolPoints = [595, 925];
-        CharacterManager.Add(skeleton1);
+        skeleton1.UniqueID = "stage3_skeleton1";
+        if (!saveData.DefeatedEnemies.Contains(skeleton1.UniqueID))
+            CharacterManager.Add(skeleton1);
         
-        Enemy skeleton2 = new Skeleton();
+        Enemy skeleton2 = new Skeleton();;
         skeleton2.Load(new Point(550, 875));
         skeleton2.PatrolPoints = [550, 1000];
-        CharacterManager.Add(skeleton2);
+        skeleton2.UniqueID = "stage3_skeleton2";
+        if (!saveData.DefeatedEnemies.Contains(skeleton2.UniqueID))
+            CharacterManager.Add(skeleton2);
         
         CollisionManager.AddRange(CharacterManager.Characters);
         
@@ -76,15 +89,29 @@ public class StageThree : Stage {
         CollisionManager.Add(new Point(1440, 720), new Point(1536, 990));
         CollisionManager.Add(new Point(1536, 630), new Point(1824, 990));
         
-        ObjectTileManager.Add(new RockPile(this), new Point(114, 844));
-        ObjectTileManager.Add(new RockPile(this), new Point(1282, 214));
-        ObjectTileManager.Add(Objective, new Point(1582, 380));
+        ObjectTile rockPile1 = new RockPile(this);
+        rockPile1.Load(new Point(114, 844));
+        rockPile1.UniqueID = "stage3_rockPile1";
+        if (!saveData.DestroyedObjectTiles.Contains(rockPile1.UniqueID))
+            ObjectTileManager.Add(rockPile1);
+        
+        ObjectTile rockPile2 = new RockPile(this);
+        rockPile2.Load(new Point(1282, 214));
+        rockPile2.UniqueID = "stage3_rockPile2";
+        if (!saveData.DestroyedObjectTiles.Contains(rockPile2.UniqueID))
+            ObjectTileManager.Add(rockPile2);
+        
+        if (!saveData.ObjectiveComplete) {
+            ObjectTileManager.Add(Objective, new Point(1582, 380));
+        }
+        
         CollisionManager.AddRange(ObjectTileManager.ObjectTiles);
         
         CharacterManager.Load(this);
 
         // PreviousSceneBounds = new Rectangle(new Point(0, 0), new Point(1920, 0));
         NextSceneBounds = new Rectangle(0, 0, 0, 0);
+        AudioManager.Play(AudioLibrary.LibraryMusic1, volume : 0.15f, loop : true);
         Save();
     }
 }

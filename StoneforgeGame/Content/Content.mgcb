@@ -13,6 +13,102 @@
 
 #---------------------------------- Content ---------------------------------#
 
+#begin Assets/Audio/AttackSFX.mp3
+/importer:Mp3Importer
+/processor:SongProcessor
+/processorParam:Quality=Best
+/build:Assets/Audio/AttackSFX.mp3
+
+#begin Assets/Audio/BatumbakalDamaged1.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Assets/Audio/BatumbakalDamaged1.wav
+
+#begin Assets/Audio/BatumbakalDamaged2.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Assets/Audio/BatumbakalDamaged2.wav
+
+#begin Assets/Audio/BatumbakalDamaged3.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Assets/Audio/BatumbakalDamaged3.wav
+
+#begin Assets/Audio/BatumbakalDamaged4.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Assets/Audio/BatumbakalDamaged4.wav
+
+#begin Assets/Audio/BatumbakalDeath1.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Assets/Audio/BatumbakalDeath1.wav
+
+#begin Assets/Audio/BatumbakalDeath2.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Assets/Audio/BatumbakalDeath2.wav
+
+#begin Assets/Audio/BatumbakalJump1.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Assets/Audio/BatumbakalJump1.wav
+
+#begin Assets/Audio/BatumbakalJump2.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Assets/Audio/BatumbakalJump2.wav
+
+#begin Assets/Audio/BatumbakalJump3.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Assets/Audio/BatumbakalJump3.wav
+
+#begin Assets/Audio/BatumbakalRespawn1.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Assets/Audio/BatumbakalRespawn1.wav
+
+#begin Assets/Audio/CastleMusic1.mp3
+/importer:Mp3Importer
+/processor:SongProcessor
+/processorParam:Quality=Best
+/build:Assets/Audio/CastleMusic1.mp3
+
+#begin Assets/Audio/CastleMusic2.mp3
+/importer:Mp3Importer
+/processor:SongProcessor
+/processorParam:Quality=Best
+/build:Assets/Audio/CastleMusic2.mp3
+
+#begin Assets/Audio/CaveMusic1.mp3
+/importer:Mp3Importer
+/processor:SongProcessor
+/processorParam:Quality=Best
+/build:Assets/Audio/CaveMusic1.mp3
+
+#begin Assets/Audio/LibraryMusic1.mp3
+/importer:Mp3Importer
+/processor:SongProcessor
+/processorParam:Quality=Best
+/build:Assets/Audio/LibraryMusic1.mp3
+
+#begin Assets/Audio/TownMusic1.mp3
+/importer:Mp3Importer
+/processor:SongProcessor
+/processorParam:Quality=Best
+/build:Assets/Audio/TownMusic1.mp3
+
 #begin Assets/Fonts/TempFont.spritefont
 /importer:FontDescriptionImporter
 /processor:FontDescriptionProcessor

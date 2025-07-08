@@ -3,6 +3,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using StoneforgeGame.Game.Entities.Characters;
 using StoneforgeGame.Game.Libraries;
+using StoneforgeGame.Game.Managers;
 using StoneforgeGame.Game.Physics;
 using StoneforgeGame.Game.Scenes.Stages;
 using StoneForgeGame.Game.Utilities;
@@ -54,10 +55,6 @@ public class Altar : ObjectTile {
             location + Size,
             solid : false
         );
-        
-        // ActualPosition = location.ToVector2();
-        //
-        // AnimationManager = null;
     }
     
     public override void Update() { }
@@ -69,11 +66,8 @@ public class Altar : ObjectTile {
     protected override void OnInteract(Character character) {
         if (character.GetGemCount() >= 3) {
             Color = Color.Black;
-            Destroy();
+            IsCompleted = true;
+            SaveManager.DeleteSave();
         }
-        
-        Console.WriteLine("Altar Interacted");
-        
-        base.OnInteract(character);
     }
 }

@@ -54,17 +54,11 @@ public class RockPile : ObjectTile {
             location + Size,
             solid : false
         );
-
-        // ActualPosition = location.ToVector2();
-        //
-        // AnimationManager = null;
     }
 
     public override void Draw(SpriteBatch spriteBatch) {
         spriteBatch.Draw(Texture.Image, Destination, Source, Color);
     }
 
-    protected override void OnDestroy() {
-        
-    }
+    protected override void OnDestroy() { }
 }

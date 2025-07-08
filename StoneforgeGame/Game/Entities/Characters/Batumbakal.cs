@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using StoneforgeGame.Game.Data;
 using StoneforgeGame.Game.Entities.Attributes;
 using StoneforgeGame.Game.Entities.ObjectTiles;
 using StoneforgeGame.Game.Graphics;
@@ -9,7 +10,6 @@ using StoneforgeGame.Game.Libraries;
 using StoneforgeGame.Game.Managers;
 using StoneforgeGame.Game.Physics;
 using StoneforgeGame.Game.Scenes.Stages;
-using StoneforgeGame.Game.Utilities;
 using StoneForgeGame.Game.Utilities;
 using Color = Microsoft.Xna.Framework.Color;
 using Point = Microsoft.Xna.Framework.Point;
@@ -27,6 +27,15 @@ public class Batumbakal : Character {
     private bool _isHoldingJump;
 
     private Point _origin;
+    private bool _hasDied;
+    private bool _hasRespawned;
+    private bool _hasBeenHit;
+    private bool _isRespawning;
+    private bool _hasSaved;
+
+    private Rectangle _messageBoxBounds;
+    private Color _messageBoxColor = new(0, 0, 0, 200);
+    private int _messagePadding = 20;
 
 
     // CONSTRUCTORS
@@ -34,7 +43,7 @@ public class Batumbakal : Character {
         Texture = TextureLibrary.Batumbakal;
         
         Name = "Batumbakal";
-        Health = new Health(100);
+        Health = new Health(50);
         
         WalkSpeed = 200f;
         JumpPower = 550f;
@@ -44,12 +53,17 @@ public class Batumbakal : Character {
         AttackCooldown = 1f;
         
         IsFacingRight = true;
+        
+        IsAlive = true;
     }
 
 
     // PROPERTIES
     private Animation CurrentAnimation {
         get => AnimationManager.CurrentAnimation;
+    }
+    private bool HasBeenHit {
+        get => _hasBeenHit;
     }
 
 
@@ -107,7 +121,26 @@ public class Batumbakal : Character {
         
         // Console.WriteLine(Destination.Location);
         #endregion
+        
+        #region --- SAVE DATA ---
+        if (_input.KeybindSave) {
+            stage.Save();
+        }
+        #endregion
+        
+        AnimationManager.Update();
+        
+        if (!IsAlive) {
+            OnDeath();
 
+            if (_hasDied && AnimationManager.IsPlaying("Death") && CurrentAnimation.IsFinished) {
+                if (!AudioManager.IsPlaying())
+                    Respawn();
+            }
+
+            return;
+        }
+        
         if (_input.PressInteract) {
             UniqueInteract(stage);
         }
@@ -132,6 +165,7 @@ public class Batumbakal : Character {
                 _isHoldingJump = true;
                 JumpCount--;
                 Direction.Y = -1;
+                AudioManager.Play(AudioLibrary.BatumbakalJump, 0.5f);
             }
 
             if (_input.ReleaseJump) {
@@ -171,10 +205,10 @@ public class Batumbakal : Character {
         
         #region --- GET HIT ---
         if (Health.WasDecreased) {
+            Health.SyncValues();
             IsHit = true;
-            AnimationManager.Play("Hit");
             InvincibilityTimer = InvincibilityFrames;
-            Health.WasDecreased = false;
+            AudioManager.Play(AudioLibrary.BatumbakalDamaged, 0.5f);
         }
 
         if (IsHit && AnimationManager.IsPlaying("Hit") && CurrentAnimation.IsFinished) {
@@ -208,28 +242,12 @@ public class Batumbakal : Character {
         Destination.Location = ActualPosition.ToPoint();
         // UpdateGamePos();
         #endregion
-        
-        AnimationManager.Update();
-        
-        #region --- SAVE DATA ---
-        if (_input.KeybindSave) {
-            SaveData saveData = new SaveData {
-                CurrentScene = stage.GetName(),
-                PositionX = ActualPosition.X,
-                PositionY = ActualPosition.Y,
-                CurrentHealth = Health.Current,
-                MaximumHealth = Health.Maximum
-            };
-
-            SaveManager.Save(saveData);
-        }
-        #endregion
     }
 
     public override void Draw(SpriteBatch spriteBatch) {
         SpriteEffects flip = IsFacingRight ? SpriteEffects.None : SpriteEffects.FlipHorizontally;
         
-        spriteBatch.Draw(MyDebug.Texture, MeleeRange, Color.Blue * 0.5f);
+        if (MyDebug.IsDebug) spriteBatch.Draw(MyDebug.Texture, MeleeRange, Color.Blue * 0.5f);
         
         spriteBatch.Draw(
             Texture.Image,
@@ -243,6 +261,7 @@ public class Batumbakal : Character {
         );
         
         DrawAttributes(spriteBatch);
+        if (_hasSaved) GameSaved(spriteBatch, MyDebug.Window, "Saved!");
         
         string gemsText = $"GEMS : {GemCount}";
         
@@ -257,17 +276,8 @@ public class Batumbakal : Character {
         IsIdle = IsOnGround && !IsWalking && !IsJumping && !IsFalling && !IsAttacking;
         IsAlive = Health.Current > 0;
 
-        if (!IsAlive) {
-            Velocity.X = 0;
-            Direction = Vector2.Zero;
-            CanMove = false;
-            CanJump = false;
-            AnimationManager.Play("Death");
-
-            if (!IsDead && AnimationManager.IsPlaying("Death") && CurrentAnimation.IsFinished) {
-                IsDead = true;
-            }
-        }
+        if (!IsAlive || AnimationManager.IsPlaying("Death")) return;
+        if (AnimationManager.IsPlaying("Respawn")) return;
         
         if (IsHit) AnimationManager.Play("Hit");
         else if (IsAttacking) AnimationManager.Play("Attack");
@@ -280,7 +290,6 @@ public class Batumbakal : Character {
     protected override void UniqueDestroyTile(Stage stage) {
         var objectTilesToDestroy = new List<ObjectTile>();
         
-        // Iterate through all object tiles in the stage
         foreach (ObjectTile objectTile in stage.GetObjectTileManager.ObjectTiles) {
             if (objectTile != null &&
                 objectTile.IsDestroyable &&
@@ -290,11 +299,11 @@ public class Batumbakal : Character {
             }
         }
 
-        // Destroy all object tiles in melee range
         foreach (ObjectTile objectTile in objectTilesToDestroy) {
             stage.GetCollisionManager().Remove(objectTile.GetCollisionBox());
             objectTile.Destroy();
-            stage.GetObjectTileManager.Remove(objectTile);
+            if (objectTile != stage.GetObjective())
+                stage.GetObjectTileManager.Remove(objectTile);
             GemCount++;
         }
     }
@@ -308,5 +317,62 @@ public class Batumbakal : Character {
                 objectTile.Interact(this);
             }
         }
+    }
+
+    private void OnDeath() {
+        Velocity = Vector2.Zero;
+        Direction = Vector2.Zero;
+        CanMove = false;
+        CanJump = false;
+        IsInvincible = true;
+        
+        
+        if (!_hasDied) {
+            AnimationManager.Play("Death");
+            AudioManager.Play(AudioLibrary.BatumbakalDeath, 0.25f);
+            _hasDied = true;
+        }
+    }
+
+    private void Respawn() {
+        ActualPosition = _origin.ToVector2();
+        Velocity = Vector2.Zero;
+        Direction = Vector2.Zero;
+
+        if (!_hasRespawned) {
+            AnimationManager.Play("Respawn");
+            AudioManager.Play(AudioLibrary.BatumbakalRespawn, 0.25f);
+
+            _hasRespawned = true;
+            IsAlive = true;
+            _hasDied = false;
+            IsInvincible = false;
+            Health.Current = Health.Maximum;
+            Health.SyncValues();
+            // IsHit = false;
+            CanMove = true;
+            CanJump = true;
+            IsFacingRight = true;
+        }
+    }
+
+    private void GameSaved(SpriteBatch spriteBatch, Rectangle window, string message) {
+        SpriteFont font = FontLibrary.TempFont;
+        Vector2 textSize = font.MeasureString(message);
+
+        _messageBoxBounds = new Rectangle(
+            (int)((window.Width - textSize.X) / 2) - _messagePadding,
+            520,
+            (int)textSize.X + (_messagePadding * 2),
+            (int)textSize.Y + (_messagePadding * 2)
+        );
+
+        Vector2 textPosition = new Vector2(
+            _messageBoxBounds.X + _messagePadding,
+            _messageBoxBounds.Y + _messagePadding
+        );
+        
+        spriteBatch.Draw(MyDebug.Texture, _messageBoxBounds, _messageBoxColor);
+        spriteBatch.DrawString(font, message, textPosition, Color.Yellow);
     }
 }

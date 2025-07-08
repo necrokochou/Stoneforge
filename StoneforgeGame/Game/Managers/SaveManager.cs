@@ -2,7 +2,7 @@
 using System.IO;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using StoneforgeGame.Game.Utilities;
+using StoneforgeGame.Game.Data;
 
 
 namespace StoneforgeGame.Game.Managers;

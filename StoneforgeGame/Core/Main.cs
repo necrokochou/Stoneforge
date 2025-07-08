@@ -23,6 +23,9 @@ public class Main : Microsoft.Xna.Framework.Game {
     private bool _wasFullscreenKeyPressed;
     
     private SceneManager _sceneManager;
+    
+    private KeyboardState _kState;
+    private KeyboardState _prevKState;
 
     public Main() {
         _graphics = new GraphicsDeviceManager(this);
@@ -43,8 +46,10 @@ public class Main : Microsoft.Xna.Framework.Game {
 
     protected override void Initialize() {
         MyDebug.Graphics = GraphicsDevice;
+        MyDebug.Window = Window.ClientBounds;
         FontLibrary.Content = Content;
         TextureLibrary.Content = Content;
+        AudioLibrary.Content = Content;
         // InputManager.Window = Window.ClientBounds;
         Scene.Window = Window.ClientBounds;
         
@@ -57,6 +62,7 @@ public class Main : Microsoft.Xna.Framework.Game {
         
         FontLibrary.Load();
         TextureLibrary.Load();
+        AudioLibrary.Load();
         
         _sceneManager = new SceneManager();
         _sceneManager.Load();
@@ -66,20 +72,25 @@ public class Main : Microsoft.Xna.Framework.Game {
         if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
             Exit();
         
-        KeyboardState keyState = Keyboard.GetState();
-        MouseState mouseState = Mouse.GetState();
+        _kState = Keyboard.GetState();
 
-        if (keyState.IsKeyDown(Keys.NumPad0) && !_wasFullscreenKeyPressed) {
-            ToggleFullscreen();
+        // if (keyState.IsKeyDown(Keys.NumPad0) && !_wasFullscreenKeyPressed) {
+        //     ToggleFullscreen();
+        // }
+        // _wasFullscreenKeyPressed = keyState.IsKeyDown(Keys.NumPad0);
+
+        if (_kState.IsKeyDown(Keys.F1) && _prevKState.IsKeyUp(Keys.F1)) {
+            MyDebug.IsDebug = !MyDebug.IsDebug;
         }
-        _wasFullscreenKeyPressed = keyState.IsKeyDown(Keys.NumPad0);
         
         _sceneManager.Update(gameTime);
-        if (_sceneManager.IsFinished) {
-            _sceneManager.Unload();
-            
-            Exit();
-        }
+        // if (_sceneManager.IsFinished) {
+        //     _sceneManager.Unload();
+        //     
+        //     Exit();
+        // }
+        
+        _prevKState = _kState;
         
         
         base.Update(gameTime);

@@ -1,11 +1,12 @@
-﻿using Microsoft.Xna.Framework;
+﻿using System.Collections.Generic;
+using Microsoft.Xna.Framework;
+using StoneforgeGame.Game.Data;
 using StoneforgeGame.Game.Entities.Characters;
 using StoneforgeGame.Game.Entities.ObjectTiles;
 using StoneforgeGame.Game.Libraries;
 using StoneforgeGame.Game.Managers;
 using StoneforgeGame.Game.Physics;
 using StoneforgeGame.Game.Scenes.Components;
-using StoneforgeGame.Game.Utilities;
 
 
 namespace StoneforgeGame.Game.Scenes.Stages;
@@ -31,6 +32,13 @@ public class StageOne : Stage {
 
     // METHODS
     public override void Load() {
+        SaveData saveData = SaveManager.Load();
+        if (saveData == null) {
+            saveData = new SaveData();
+            saveData.DefeatedEnemies = new List<string>();
+            saveData.DestroyedObjectTiles = new List<string>();
+        }
+        
         Background = new Background(TextureLibrary.StageOneBackground, Window.Size);
         
         Gravity = new Gravity(
@@ -44,6 +52,13 @@ public class StageOne : Stage {
             Player.Load(Player.ActualPosition.ToPoint());
         }
         CharacterManager.Add(Player);
+        
+        Enemy skeleton1 = new Skeleton();
+        skeleton1.Load(new Point(50, 370));
+        skeleton1.PatrolPoints = [50, 700];
+        skeleton1.UniqueID = "stage1_skeleton1";
+        if (!saveData.DefeatedEnemies.Contains(skeleton1.UniqueID))
+            CharacterManager.Add(skeleton1);
         
         CollisionManager.AddRange(CharacterManager.Characters);
         
@@ -59,13 +74,19 @@ public class StageOne : Stage {
         CollisionManager.Add(new Point(1440, 228), new Point(1536, 276));
         CollisionManager.Add(new Point(1664, 228), new Point(2120, 276));
         
-        ObjectTileManager.Add(new RockPile(this), new Point(1728, 886));
+        ObjectTile rockPile1 = new RockPile(this);
+        rockPile1.Load(new Point(1728, 886));
+        rockPile1.UniqueID = "stage1_rockPile1";
+        if (!saveData.DestroyedObjectTiles.Contains(rockPile1.UniqueID))
+            ObjectTileManager.Add(rockPile1);
+        
         CollisionManager.AddRange(ObjectTileManager.ObjectTiles);
         
         CharacterManager.Load(this);
         
         // PreviousSceneBounds = new Rectangle(Point.Zero, Point.Zero);
         NextSceneBounds = new Rectangle(new Point(1920, 0), new Point(2120, 1080));
+        AudioManager.Play(AudioLibrary.CaveMusic1, volume : 0.1f, loop : true);
         Save();
     }
 }
