@@ -22,6 +22,8 @@ public class InputManager {
     
     private bool _reset;
     private bool _teleport;
+    private bool _forceRespawn;
+    private bool _specialVoiceLine;
     
 
     // CONSTRUCTORS
@@ -53,23 +55,19 @@ public class InputManager {
     }
     
     public bool Reset {
-        get {
-            if (MyDebug.IsDebug)
-                return _reset;
-
-            return false;
-        }
+        get => _reset;
     }
     public bool Teleport {
-        get {
-            if (MyDebug.IsDebug)
-                return _teleport;
-
-            return false;
-        }
+        get => _teleport;
     }
     public Point TeleportLocation {
         get => _mouseState.Position;
+    }
+    public bool ForceRespawn {
+        get => _forceRespawn;
+    }
+    public bool SpecialVoiceLine {
+        get => _specialVoiceLine;
     }
 
 
@@ -89,5 +87,7 @@ public class InputManager {
         
         _reset = _keyState.IsKeyDown(Keys.R);
         _teleport = _keyState.IsKeyDown(Keys.T);
+        _forceRespawn = _keyState.IsKeyDown(Keys.Y);
+        _specialVoiceLine = _keyState.IsKeyDown(Keys.U);
     }
 }

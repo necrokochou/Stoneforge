@@ -51,7 +51,7 @@ public class StageThree : Stage {
         );
         
         if (Player.ActualPosition == Vector2.Zero) {
-            Player.Load(new Point(1680, -100));
+            Player.Load(new Point(1680, 0));
         } else {
             Player.Load(Player.ActualPosition.ToPoint());
         }
