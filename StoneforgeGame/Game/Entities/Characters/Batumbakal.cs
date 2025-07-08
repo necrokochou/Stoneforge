@@ -126,7 +126,8 @@ public class Batumbakal : Character {
             }
 
             if (_input.SpecialVoiceLine) {
-                AudioManager.Play(AudioLibrary.BatumbakalDamaged[3].CreateInstance(), 0.2f);
+                if (!AudioManager.IsPlaying())
+                    AudioManager.Play(AudioLibrary.BatumbakalDamaged[3].CreateInstance(), 0.2f);
             }
         }
         #endregion
