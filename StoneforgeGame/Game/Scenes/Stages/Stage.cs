@@ -1,7 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using StoneforgeGame.Game.Entities.Characters;
+using StoneforgeGame.Game.Entities.ObjectTiles;
 using StoneforgeGame.Game.Managers;
 using StoneForgeGame.Game.Managers;
 using StoneforgeGame.Game.Physics;
@@ -18,10 +20,13 @@ public abstract class Stage : Scene {
 
     protected string Name;
     protected Character Player;
+    protected ObjectTile Objective;
 
     protected Gravity Gravity;
 
+    protected Rectangle PreviousSceneBounds;
     protected Rectangle NextSceneBounds;
+    protected bool ReachedPreviousLocation;
     protected bool ReachedNextLocation;
     
     private bool _debug = true;
@@ -48,6 +53,7 @@ public abstract class Stage : Scene {
         CharacterManager.Unload();
         CollisionManager.Unload();
         ObjectTileManager.Unload();
+        Background = null;
     }
 
     public override void Update(GameTime gameTime) {
@@ -67,8 +73,11 @@ public abstract class Stage : Scene {
         foreach (Character character in charactersToRemove) {
             CharacterManager.Remove(character);
         }
+        
+        // ReachedPreviousLocation = PreviousSceneBounds.Contains(Player.GetCollisionBox().Bounds);
 
         ReachedNextLocation = NextSceneBounds.Contains(Player.GetCollisionBox().Bounds);
+
         if (ReachedNextLocation) {
             Player.ActualPosition = Vector2.Zero;
         }
@@ -85,12 +94,24 @@ public abstract class Stage : Scene {
     public string GetName() {
         return Name;
     }
-
+    
+    public Rectangle GetPreviousSceneBounds() {
+        return PreviousSceneBounds;
+    }
+    
+    public bool GetReachedPreviousLocation() {
+        return ReachedPreviousLocation;
+    }
+    
     public Rectangle GetNextSceneBounds() {
         return NextSceneBounds;
     }
     
     public bool GetReachedNextLocation() {
         return ReachedNextLocation;
+    }
+
+    public ObjectTile GetObjective() {
+        return Objective;
     }
 }

@@ -1,8 +1,11 @@
-﻿using Microsoft.Xna.Framework;
+﻿using System;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using StoneforgeGame.Game.Entities.Characters;
 using StoneforgeGame.Game.Libraries;
 using StoneforgeGame.Game.Physics;
 using StoneforgeGame.Game.Scenes.Stages;
+using StoneForgeGame.Game.Utilities;
 
 
 namespace StoneforgeGame.Game.Entities.ObjectTiles;
@@ -22,6 +25,7 @@ public class Altar : ObjectTile {
         Stage = stage;
         
         IsDestroyable = false;
+        IsInteractable = true;
     }
 
 
@@ -55,13 +59,21 @@ public class Altar : ObjectTile {
         //
         // AnimationManager = null;
     }
+    
+    public override void Update() { }
 
     public override void Draw(SpriteBatch spriteBatch) {
         spriteBatch.Draw(Texture.Image, Destination, Source, Color);
     }
 
-    public override void OnDestroy() {
-        if (IsDestroyed) return;
-        Destroy();
+    protected override void OnInteract(Character character) {
+        if (character.GetGemCount() >= 3) {
+            Color = Color.Black;
+            Destroy();
+        }
+        
+        Console.WriteLine("Altar Interacted");
+        
+        base.OnInteract(character);
     }
 }

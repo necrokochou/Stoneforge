@@ -22,6 +22,9 @@ public class SceneManager {
     
     private Character _player;
 
+    private bool _isFinished;
+    private bool _shouldFinish;
+    private float _finishTimer;
 
     // CONSTRUCTORS
     // public SceneManager(Scene[] scenes) {
@@ -46,7 +49,9 @@ public class SceneManager {
 
 
     // PROPERTIES
-    
+    public bool IsFinished {
+        get => _isFinished;
+    }
 
 
     // METHODS'
@@ -85,20 +90,86 @@ public class SceneManager {
     }
 
     public void Unload() {
-        _currentScene.Unload();
+        _currentScene?.Unload();
+        _scenes.Clear();
+        _currentScene = null;
+        _currentSceneIndex = 0;
+        _firstStageIndex = 0;
+        _lastStageIndex = 0;
+        _player = null;
     }
     
     public void Update(GameTime gameTime) {
+        if (_shouldFinish) {
+            _finishTimer -= (float)gameTime.ElapsedGameTime.TotalSeconds;
+            if (_finishTimer <= 0f) {
+                _currentScene.Unload();
+                _isFinished = true;
+            }
+            return;
+        }
+        
         _currentScene.Update(gameTime);
 
-        if (_currentScene is Stage currentStage &&
-            currentStage.GetReachedNextLocation() &&
-            _currentSceneIndex < _lastStageIndex) {
+        if (_currentScene is Stage) {
+            Stage stage = (Stage) _currentScene;
+            if (stage.GetObjective() != null && 
+                stage.GetObjective().IsDestroyed &&
+                _currentSceneIndex == _lastStageIndex) {
+                
+                SaveData saveData = new SaveData {
+                    PositionX = _player.ActualPosition.X,
+                    PositionY = _player.ActualPosition.Y,
+                    CurrentHealth = _player.GetHealth().Current,
+                    MaximumHealth = _player.GetHealth().Maximum,
+                    CurrentScene = stage.GetName()
+                };
 
-            _currentScene.Unload();
-            _currentSceneIndex++;
-            _currentScene = _scenes[_currentSceneIndex];
-            _currentScene.Load();
+                SaveManager.Save(saveData);
+
+                _finishTimer = 0.25f;
+                _shouldFinish = true;
+            }
+        }
+        
+        if (_currentScene is Stage) {
+            Stage stage = (Stage) _currentScene;
+            if (stage != null &&
+                stage.GetReachedNextLocation() &&
+                _currentSceneIndex < _lastStageIndex) {
+
+                _currentScene.Unload();
+                _currentSceneIndex++;
+                _currentScene = _scenes[_currentSceneIndex];
+                _currentScene.Load();
+            }
+        }
+        
+        // if (_currentScene is Stage) {
+        //     Stage stage = (Stage) _currentScene;
+        //     if (stage != null &&
+        //         stage.GetReachedPreviousLocation() &&
+        //         _currentSceneIndex > _firstStageIndex) {
+        //         
+        //         _currentScene.Unload();
+        //         _currentSceneIndex--;
+        //         _currentScene = _scenes[_currentSceneIndex];
+        //         _currentScene.Load();
+        //     }
+        // }
+        
+        if (_currentScene is Stage) {
+            Stage stage = (Stage) _currentScene;
+            if (stage != null &&
+                stage.GetObjective() != null &&
+                stage.GetObjective().IsDestroyed &&
+                _currentSceneIndex < _lastStageIndex) {
+
+                _currentScene.Unload();
+                _currentSceneIndex++;
+                _currentScene = _scenes[_currentSceneIndex];
+                _currentScene.Load();
+            }
         }
     }
     

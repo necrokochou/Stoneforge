@@ -79,6 +79,11 @@ public class Main : Microsoft.Xna.Framework.Game {
         _wasFullscreenKeyPressed = keyState.IsKeyDown(Keys.NumPad0);
         
         _sceneManager.Update(gameTime);
+        if (_sceneManager.IsFinished) {
+            _sceneManager.Unload();
+            
+            Exit();
+        }
         
         
         base.Update(gameTime);

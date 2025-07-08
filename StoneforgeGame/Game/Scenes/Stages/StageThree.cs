@@ -6,6 +6,7 @@ using StoneforgeGame.Game.Managers;
 using StoneForgeGame.Game.Managers;
 using StoneforgeGame.Game.Physics;
 using StoneforgeGame.Game.Scenes.Components;
+using StoneForgeGame.Game.Utilities;
 
 
 namespace StoneforgeGame.Game.Scenes.Stages;
@@ -22,6 +23,8 @@ public class StageThree : Stage {
         Player = character;
         
         ReachedNextLocation = false;
+        
+        Objective = new Altar(this);
     }
 
 
@@ -41,7 +44,7 @@ public class StageThree : Stage {
         if (Player.ActualPosition == Vector2.Zero) {
             Player.Load(new Point(1680, -100));
         } else {
-            Player.Load(Player.ActualPosition.ToPoint()); // ← preserves saved position
+            Player.Load(Player.ActualPosition.ToPoint());
         }
         CharacterManager.Add(Player);
         
@@ -65,11 +68,12 @@ public class StageThree : Stage {
         
         ObjectTileManager.Add(new RockPile(this), new Point(114, 844));
         ObjectTileManager.Add(new RockPile(this), new Point(1282, 214));
-        ObjectTileManager.Add(new Altar(this), new Point(1582, 380));
+        ObjectTileManager.Add(Objective, new Point(1582, 380));
         CollisionManager.AddRange(ObjectTileManager.ObjectTiles);
         
         CharacterManager.Load(this);
 
+        // PreviousSceneBounds = new Rectangle(new Point(0, 0), new Point(1920, 0));
         NextSceneBounds = new Rectangle(0, 0, 0, 0);
     }
 }

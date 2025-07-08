@@ -39,7 +39,7 @@ public class StageOne : Stage {
         if (Player.ActualPosition == Vector2.Zero) {
             Player.Load(new Point(200, 800));
         } else {
-            Player.Load(Player.ActualPosition.ToPoint()); // ← preserves saved position
+            Player.Load(Player.ActualPosition.ToPoint());
         }
         CharacterManager.Add(Player);
         
@@ -62,6 +62,7 @@ public class StageOne : Stage {
         
         CharacterManager.Load(this);
         
+        // PreviousSceneBounds = new Rectangle(Point.Zero, Point.Zero);
         NextSceneBounds = new Rectangle(new Point(1920, 0), new Point(2120, 1080));
     }
 }

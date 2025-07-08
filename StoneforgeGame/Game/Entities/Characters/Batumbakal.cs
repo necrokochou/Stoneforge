@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using StoneforgeGame.Game.Entities.Attributes;
+using StoneforgeGame.Game.Entities.ObjectTiles;
 using StoneforgeGame.Game.Graphics;
 using StoneforgeGame.Game.Libraries;
 using StoneforgeGame.Game.Managers;
@@ -21,8 +23,6 @@ namespace StoneforgeGame.Game.Entities.Characters;
 public class Batumbakal : Character {
     // FIELDS
     private InputManager _input = new InputManager();
-
-    private int _gems;
     
     private bool _isHoldingJump;
 
@@ -107,6 +107,10 @@ public class Batumbakal : Character {
         
         // Console.WriteLine(Destination.Location);
         #endregion
+
+        if (_input.PressInteract) {
+            UniqueInteract(stage);
+        }
         
         #region --- MOVEMENT ---
         if (CanMove) {
@@ -158,16 +162,11 @@ public class Batumbakal : Character {
                 CollisionBox.Bounds.Top
             );
         }
+        MeleeRange.Size = new Point(CollisionBox.Bounds.Width, CollisionBox.Bounds.Height);
         
         if (IsAttacking && CurrentAnimation.IsFinished) {
-
-            MeleeRange.Size = new Point(CollisionBox.Bounds.Width, CollisionBox.Bounds.Height);
-
             CheckMeleeRange(stage);
-            
             IsAttacking = false;
-            // MeleeRange.Location = Point.Zero;
-            // MeleeRange.Size = Point.Zero;
         }
 
         if (!IsAttacking && AttackCooldownTimer > 0f) {
@@ -236,7 +235,7 @@ public class Batumbakal : Character {
     public override void Draw(SpriteBatch spriteBatch) {
         SpriteEffects flip = IsFacingRight ? SpriteEffects.None : SpriteEffects.FlipHorizontally;
         
-        // spriteBatch.Draw(MyDebug.Texture, MeleeRange, Color.Blue * 0.5f);
+        spriteBatch.Draw(MyDebug.Texture, MeleeRange, Color.Blue * 0.5f);
         
         spriteBatch.Draw(
             Texture.Image,
@@ -251,7 +250,7 @@ public class Batumbakal : Character {
         
         DrawAttributes(spriteBatch);
         
-        string gemsText = $"GEMS : {_gems}";
+        string gemsText = $"GEMS : {GemCount}";
         
         spriteBatch.DrawString(FontLibrary.TempFont, gemsText, new Vector2(25, 50), Color.White);
     }
@@ -282,5 +281,38 @@ public class Batumbakal : Character {
         else if (IsFalling) AnimationManager.Play("Fall");
         else if (IsWalking) AnimationManager.Play("Walk");
         else if (IsIdle) AnimationManager.Play("Idle");
+    }
+
+    protected override void UniqueDestroyTile(Stage stage) {
+        var objectTilesToDestroy = new List<ObjectTile>();
+        
+        // Iterate through all object tiles in the stage
+        foreach (ObjectTile objectTile in stage.GetObjectTileManager.ObjectTiles) {
+            if (objectTile != null &&
+                objectTile.IsDestroyable &&
+                objectTile.GetCollisionBox().Bounds.Intersects(MeleeRange)) {
+                
+                objectTilesToDestroy.Add(objectTile);
+            }
+        }
+
+        // Destroy all object tiles in melee range
+        foreach (ObjectTile objectTile in objectTilesToDestroy) {
+            stage.GetCollisionManager.Remove(objectTile.GetCollisionBox());
+            objectTile.Destroy();
+            stage.GetObjectTileManager.Remove(objectTile);
+            GemCount++;
+        }
+    }
+
+    protected override void UniqueInteract(Stage stage) {
+        foreach (ObjectTile objectTile in stage.GetObjectTileManager.ObjectTiles) {
+            if (objectTile != null &&
+                objectTile.IsInteractable &&
+                objectTile.GetCollisionBox().Bounds.Contains(CollisionBox.Bounds)) {
+                
+                objectTile.Interact(this);
+            }
+        }
     }
 }

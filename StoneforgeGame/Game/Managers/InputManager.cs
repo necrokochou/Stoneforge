@@ -15,14 +15,13 @@ public class InputManager {
     private bool _pressJump;
     private bool _releaseJump;
     private bool _pressAttack;
+    private bool _pressInteract;
 
     private bool _keybindSave;
     
     private bool _reset;
     private bool _teleport;
     
-    // public static Rectangle Window;
-
 
     // CONSTRUCTORS
 
@@ -43,6 +42,9 @@ public class InputManager {
     }
     public bool PressAttack {
         get => _pressAttack;
+    }
+    public bool PressInteract {
+        get => _pressInteract;
     }
     
     public bool KeybindSave {
@@ -70,6 +72,7 @@ public class InputManager {
         _pressJump = _keyState.IsKeyDown(Keys.Space);
         _releaseJump = _keyState.IsKeyUp(Keys.Space);
         _pressAttack = _mouseState.LeftButton == ButtonState.Pressed;
+        _pressInteract = _keyState.IsKeyDown(Keys.E);
         
         _keybindSave = _keyState.IsKeyDown(Keys.LeftControl) && _keyState.IsKeyDown(Keys.S);
         

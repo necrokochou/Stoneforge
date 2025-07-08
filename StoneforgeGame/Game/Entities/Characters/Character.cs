@@ -37,6 +37,8 @@ public abstract class Character {
     protected float AttackSpeed;
     protected float AttackCooldown;
     protected float AttackCooldownTimer;
+
+    protected int GemCount;
     
     protected Vector2 GamePosition;
     public Vector2 ActualPosition;
@@ -108,18 +110,12 @@ public abstract class Character {
     }
 
     protected void CheckMeleeRange(Stage stage) {
-        var objectTilesToDestroy = new List<ObjectTile>();
+        HitCharacter(stage);
+        UniqueDestroyTile(stage);
+    }
+    
+    private void HitCharacter(Stage stage) {
         var charactersToHit = new List<Character>();
-
-        // Iterate through all object tiles in the stage
-        foreach (ObjectTile objectTile in stage.GetObjectTileManager.ObjectTiles) {
-            if (objectTile != null &&
-                objectTile.IsDestroyable &&
-                objectTile.GetCollisionBox().Bounds.Intersects(MeleeRange)) {
-                
-                objectTilesToDestroy.Add(objectTile);
-            }
-        }
         
         // Iterate through all characters except player in the stage
         foreach (Character character in stage.GetCharacterManager.Characters) {
@@ -132,19 +128,15 @@ public abstract class Character {
                 charactersToHit.Add(character);
             }
         }
-
-        // Destroy all object tiles in melee range
-        foreach (ObjectTile objectTile in objectTilesToDestroy) {
-            stage.GetCollisionManager.Remove(objectTile.GetCollisionBox());
-            objectTile.OnDestroy();
-            stage.GetObjectTileManager.Remove(objectTile);
-        }
         
         // Hit all characters in melee range
         foreach (Character character in charactersToHit) {
             character.Health.Current -= AttackDamage;
         }
     }
+    
+    protected virtual void UniqueDestroyTile(Stage stage) { }
+    protected virtual void UniqueInteract(Stage stage) { }
 
     // protected void UpdateGamePos() {
     //     GamePosition = new Vector2(ActualPosition.X + (float) Source.X / 2, ActualPosition.Y + Source.Y);
@@ -158,6 +150,10 @@ public abstract class Character {
 
     public BoxCollider GetCollisionBox() {
         return CollisionBox;
+    }
+
+    public int GetGemCount() {
+        return GemCount;
     }
 
     protected void DrawAttributes(SpriteBatch spriteBatch) {

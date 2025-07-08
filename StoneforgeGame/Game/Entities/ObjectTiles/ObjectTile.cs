@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using StoneforgeGame.Game.Entities.Characters;
 using StoneforgeGame.Game.Managers;
 using StoneforgeGame.Game.Physics;
 using StoneforgeGame.Game.Scenes.Stages;
@@ -31,6 +32,8 @@ public abstract class ObjectTile {
 
     public bool IsDestroyable;
     public bool IsDestroyed;
+    public bool IsInteractable;
+    public bool IsInteracted;
     
     private static ObjectTile _currentlyDraggedTile;
     private bool _isDragging;
@@ -55,11 +58,24 @@ public abstract class ObjectTile {
     public virtual BoxCollider GetCollisionBox() {
         return CollisionBox;
     }
-    
-    public virtual void OnDestroy() { }
 
-    protected virtual void Destroy() {
+    public void Destroy() {
+        if (IsDestroyed) return;
         IsDestroyed = true;
+        Console.WriteLine($"{this} destroyed.");
+        OnDestroy();
+    }
+    
+    protected virtual void OnDestroy() {
+    }
+    
+    public void Interact(Character character) {
+        if (IsInteracted) return;
+        IsInteracted = true;
+        OnInteract(character);
+    }
+    
+    protected virtual void OnInteract(Character character) {
     }
     
     public void DebugDragTile() {
@@ -69,25 +85,24 @@ public abstract class ObjectTile {
 
         if (keyState.IsKeyDown(Keys.LeftShift) && mouseState.LeftButton == ButtonState.Pressed) {
             if (CollisionBox.Bounds.Contains(mouseState.Position.ToVector2())) {
-            if (!_isDragging && (_currentlyDraggedTile == null || _currentlyDraggedTile == this)) {
-                _isDragging = true;
-                _dragOffset = mousePosition - Destination.Location.ToVector2();
-                _currentlyDraggedTile = this;
+                if (!_isDragging && (_currentlyDraggedTile == null || _currentlyDraggedTile == this)) {
+                    _isDragging = true;
+                    _dragOffset = mousePosition - Destination.Location.ToVector2();
+                    _currentlyDraggedTile = this;
+                }
             }
+        } else {
+            if (_currentlyDraggedTile == this) {
+                _currentlyDraggedTile = null;
+            }
+            _isDragging = false;
         }
-    } else {
-        if (_currentlyDraggedTile == this) {
-            _currentlyDraggedTile = null;
-        }
-        _isDragging = false;
-    }
 
-    if (_isDragging && _currentlyDraggedTile == this) {
-        Vector2 newPosition = mousePosition - _dragOffset;
-        Destination = new Rectangle(newPosition.ToPoint(), Size);
-        CollisionBox.Move(newPosition.ToPoint(), newPosition.ToPoint() + Size);
-        Console.WriteLine(CollisionBox.Bounds.Location);
-    }
-        
+        if (_isDragging && _currentlyDraggedTile == this) {
+            Vector2 newPosition = mousePosition - _dragOffset;
+            Destination = new Rectangle(newPosition.ToPoint(), Size);
+            CollisionBox.Move(newPosition.ToPoint(), newPosition.ToPoint() + Size);
+            Console.WriteLine(CollisionBox.Bounds.Location);
+        }
     }
 }

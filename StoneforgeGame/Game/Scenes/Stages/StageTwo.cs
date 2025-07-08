@@ -73,6 +73,7 @@ public class StageTwo : Stage {
         
         CharacterManager.Load(this);
 
+        // PreviousSceneBounds = new Rectangle(new Point(-200, 0), new Point(0, 1080));
         NextSceneBounds = new Rectangle(new Point(0, 1080), new Point(1920, 1280));
     }
 }

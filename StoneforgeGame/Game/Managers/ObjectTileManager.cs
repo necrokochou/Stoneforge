@@ -57,14 +57,13 @@ public class ObjectTileManager {
         _objectTiles.Add(objectTile);
     }
 
-    public void Remove(ObjectTile objectTile) {
-        _objectTiles.Remove(objectTile);
-    }
-
     public void Add(ObjectTile objectTile, Point location) {
         objectTile.Load(location);
         
         Add(objectTile);
     }
 
+    public void Remove(ObjectTile objectTile) {
+        _objectTiles.Remove(objectTile);
+    }
 }
