@@ -35,6 +35,8 @@ public class SceneManager {
     private Rectangle _messageBoxBounds;
     private Color _messageBoxColor = new(0, 0, 0, 200);
     private int _messagePadding = 20;
+
+    private bool _isInMainMenu;
     
 
     // CONSTRUCTORS
@@ -44,8 +46,8 @@ public class SceneManager {
 
 
     // PROPERTIES
-    public bool IsFinished {
-        get => _isFinished;
+    public bool IsInMainMenu {
+        get => _isInMainMenu;
     }
 
 
@@ -71,6 +73,8 @@ public class SceneManager {
     }
     
     public void Update(GameTime gameTime) {
+        _isInMainMenu = _currentScene is MainMenu;
+        
         if (_shouldFinish) {
             _finishTimer -= (float)gameTime.ElapsedGameTime.TotalSeconds;
             if (_finishTimer <= 0f) {
