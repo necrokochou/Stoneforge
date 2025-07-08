@@ -7,6 +7,7 @@ using StoneforgeGame.Game.Entities.ObjectTiles;
 using StoneforgeGame.Game.Managers;
 using StoneForgeGame.Game.Managers;
 using StoneforgeGame.Game.Physics;
+using StoneforgeGame.Game.Utilities;
 
 
 namespace StoneforgeGame.Game.Scenes.Stages;
@@ -24,9 +25,9 @@ public abstract class Stage : Scene {
 
     protected Gravity Gravity;
 
-    protected Rectangle PreviousSceneBounds;
+    // protected Rectangle PreviousSceneBounds;
     protected Rectangle NextSceneBounds;
-    protected bool ReachedPreviousLocation;
+    // protected bool ReachedPreviousLocation;
     protected bool ReachedNextLocation;
     
     private bool _debug = true;
@@ -37,9 +38,6 @@ public abstract class Stage : Scene {
 
 
     // PROPERTIES
-    public CollisionManager GetCollisionManager {
-        get => CollisionManager;
-    }
     public ObjectTileManager GetObjectTileManager {
         get => ObjectTileManager;
     }
@@ -90,18 +88,22 @@ public abstract class Stage : Scene {
         ObjectTileManager.Draw(spriteBatch);
         CharacterManager.Draw(spriteBatch);
     }
+
+    public CollisionManager GetCollisionManager() {
+        return CollisionManager;
+    }
     
     public string GetName() {
         return Name;
     }
     
-    public Rectangle GetPreviousSceneBounds() {
-        return PreviousSceneBounds;
-    }
-    
-    public bool GetReachedPreviousLocation() {
-        return ReachedPreviousLocation;
-    }
+    // public Rectangle GetPreviousSceneBounds() {
+    //     return PreviousSceneBounds;
+    // }
+    //
+    // public bool GetReachedPreviousLocation() {
+    //     return ReachedPreviousLocation;
+    // }
     
     public Rectangle GetNextSceneBounds() {
         return NextSceneBounds;
@@ -113,5 +115,20 @@ public abstract class Stage : Scene {
 
     public ObjectTile GetObjective() {
         return Objective;
+    }
+
+    public Character GetPlayer() {
+        return Player;
+    }
+
+    protected void Save() {
+        SaveData saveData = new SaveData {
+            CurrentScene = Name,
+            CurrentHealth = Player.GetHealth().Current,
+            MaximumHealth = Player.GetHealth().Maximum,
+            PositionX = Player.ActualPosition.X,
+            PositionY = Player.ActualPosition.Y
+        };
+        SaveManager.Save(saveData);
     }
 }

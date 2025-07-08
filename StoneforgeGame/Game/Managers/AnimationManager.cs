@@ -46,4 +46,8 @@ public class AnimationManager {
     public Rectangle GetFrame(int frameWidth, int frameHeight) {
         return _currentAnimation.GetFrame(frameWidth, frameHeight);
     }
+
+    public bool IsPlaying(string name) {
+        return _currentAnimation == _animations[name];
+    }
 }

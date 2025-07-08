@@ -58,10 +58,6 @@ public class Main : Microsoft.Xna.Framework.Game {
         FontLibrary.Load();
         TextureLibrary.Load();
         
-        // _sceneManager = new SceneManager(
-        //     [_stageTwo]
-        // );
-        
         _sceneManager = new SceneManager();
         _sceneManager.Load();
     }

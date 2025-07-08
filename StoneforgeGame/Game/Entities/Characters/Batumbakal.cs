@@ -34,7 +34,7 @@ public class Batumbakal : Character {
         Texture = TextureLibrary.Batumbakal;
         
         Name = "Batumbakal";
-        Health = new Health(50);
+        Health = new Health(100);
         
         WalkSpeed = 200f;
         JumpPower = 550f;
@@ -151,20 +151,14 @@ public class Batumbakal : Character {
             AttackCooldownTimer = AttackCooldown;
         }
         
+        MeleeRange.Size = new Point((int) (CollisionBox.Bounds.Width * 1.5f), CollisionBox.Bounds.Height);
         if (IsFacingRight) {
-            MeleeRange.Location = new Point(
-                CollisionBox.Bounds.Right,
-                CollisionBox.Bounds.Top
-            );
+            MeleeRange.Location = new Point(CollisionBox.Bounds.Right, CollisionBox.Bounds.Top);
         } else {
-            MeleeRange.Location = new Point(
-                CollisionBox.Bounds.Left - MeleeRange.Width,
-                CollisionBox.Bounds.Top
-            );
+            MeleeRange.Location = new Point(CollisionBox.Bounds.Left - MeleeRange.Width, CollisionBox.Bounds.Top);
         }
-        MeleeRange.Size = new Point(CollisionBox.Bounds.Width, CollisionBox.Bounds.Height);
         
-        if (IsAttacking && CurrentAnimation.IsFinished) {
+        if (IsAttacking && AnimationManager.IsPlaying("Attack") && CurrentAnimation.IsFinished) {
             CheckMeleeRange(stage);
             IsAttacking = false;
         }
@@ -183,7 +177,7 @@ public class Batumbakal : Character {
             Health.WasDecreased = false;
         }
 
-        if (IsHit && CurrentAnimation.IsFinished) {
+        if (IsHit && AnimationManager.IsPlaying("Hit") && CurrentAnimation.IsFinished) {
             IsHit = false;
         }
 
@@ -207,7 +201,7 @@ public class Batumbakal : Character {
         NextPosition.X = ActualPosition.X + Velocity.X * deltaTime;
         NextPosition.Y = ActualPosition.Y + Velocity.Y * deltaTime;
         CollisionBox.GetNextBounds(ActualPosition, NextPosition);
-        CheckCollision(stage.GetCollisionManager);
+        CheckCollision(stage.GetCollisionManager());
         #endregion
         
         #region --- POSITION ---
@@ -270,7 +264,7 @@ public class Batumbakal : Character {
             CanJump = false;
             AnimationManager.Play("Death");
 
-            if (!IsDead && AnimationManager.CurrentAnimation.IsFinished) {
+            if (!IsDead && AnimationManager.IsPlaying("Death") && CurrentAnimation.IsFinished) {
                 IsDead = true;
             }
         }
@@ -298,7 +292,7 @@ public class Batumbakal : Character {
 
         // Destroy all object tiles in melee range
         foreach (ObjectTile objectTile in objectTilesToDestroy) {
-            stage.GetCollisionManager.Remove(objectTile.GetCollisionBox());
+            stage.GetCollisionManager().Remove(objectTile.GetCollisionBox());
             objectTile.Destroy();
             stage.GetObjectTileManager.Remove(objectTile);
             GemCount++;

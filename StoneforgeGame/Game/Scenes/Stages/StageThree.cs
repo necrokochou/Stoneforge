@@ -48,6 +48,16 @@ public class StageThree : Stage {
         }
         CharacterManager.Add(Player);
         
+        Enemy skeleton1 = new Skeleton();
+        skeleton1.Load(new Point(595, 155));
+        skeleton1.PatrolPoints = [595, 925];
+        CharacterManager.Add(skeleton1);
+        
+        Enemy skeleton2 = new Skeleton();
+        skeleton2.Load(new Point(550, 875));
+        skeleton2.PatrolPoints = [550, 1000];
+        CharacterManager.Add(skeleton2);
+        
         CollisionManager.AddRange(CharacterManager.Characters);
         
         CollisionManager.SetBorder(thickness : 90, bottom : true);
@@ -75,5 +85,6 @@ public class StageThree : Stage {
 
         // PreviousSceneBounds = new Rectangle(new Point(0, 0), new Point(1920, 0));
         NextSceneBounds = new Rectangle(0, 0, 0, 0);
+        Save();
     }
 }

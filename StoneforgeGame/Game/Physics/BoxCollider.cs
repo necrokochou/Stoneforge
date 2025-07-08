@@ -27,8 +27,7 @@ public class BoxCollider {
     private bool _isSolid;
     private bool _isDamage;
 
-
-
+    
     // CONSTRUCTORS
     public BoxCollider(Point start, Point end, Vector2 offsetRatio = default, bool solid = true, bool damage = false, Character owner = null) {
         _destination = new Rectangle(
@@ -84,7 +83,7 @@ public class BoxCollider {
         int colliderWidth = (int) (_owner.Bounds.Width * _offsetRatio.X);
         int colliderHeight = (int) (_owner.Bounds.Height * _offsetRatio.Y);
 
-        int colliderX = (int) (_owner.ActualPosition.X + (_owner.Bounds.Width - colliderWidth) * _offsetRatio.X);
+        int colliderX = (int) (_owner.ActualPosition.X + (_owner.Bounds.Width - colliderWidth) * 0.5f);
         int colliderY = (int) (_owner.ActualPosition.Y + (_owner.Bounds.Height - colliderHeight) * _offsetRatio.Y);
 
         _destination = new Rectangle(
@@ -109,7 +108,7 @@ public class BoxCollider {
         int colliderWidth = _destination.Width;
         int colliderHeight = _destination.Height;
 
-        int nextX = (int) (nextPosition.X + (_owner.Bounds.Width - colliderWidth) * _offsetRatio.X);
+        int nextX = (int) (nextPosition.X + (_owner.Bounds.Width - colliderWidth) * 0.5f);
         int currentY = (int) (position.Y + (_owner.Bounds.Height - colliderHeight) * _offsetRatio.Y);
 
         _nextHorizontalDestination = new Rectangle(
@@ -119,7 +118,7 @@ public class BoxCollider {
             colliderHeight
         );
 
-        int currentX = (int) (position.X + (_owner.Bounds.Width - colliderWidth) * _offsetRatio.X);
+        int currentX = (int) (position.X + (_owner.Bounds.Width - colliderWidth) * 0.5f);
         int nextY = (int) (nextPosition.Y + (_owner.Bounds.Height - colliderHeight) * _offsetRatio.Y);
 
         _nextVerticalDestination = new Rectangle(

@@ -2,8 +2,10 @@
 using StoneforgeGame.Game.Entities.Characters;
 using StoneforgeGame.Game.Entities.ObjectTiles;
 using StoneforgeGame.Game.Libraries;
+using StoneforgeGame.Game.Managers;
 using StoneforgeGame.Game.Physics;
 using StoneforgeGame.Game.Scenes.Components;
+using StoneforgeGame.Game.Utilities;
 
 
 namespace StoneforgeGame.Game.Scenes.Stages;
@@ -64,5 +66,6 @@ public class StageOne : Stage {
         
         // PreviousSceneBounds = new Rectangle(Point.Zero, Point.Zero);
         NextSceneBounds = new Rectangle(new Point(1920, 0), new Point(2120, 1080));
+        Save();
     }
 }

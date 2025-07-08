@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using StoneforgeGame.Game.Entities.Characters;
+using StoneforgeGame.Game.Libraries;
 using StoneforgeGame.Game.Managers;
 using StoneforgeGame.Game.Scenes;
 using StoneforgeGame.Game.Scenes.Stages;
@@ -25,24 +26,12 @@ public class SceneManager {
     private bool _isFinished;
     private bool _shouldFinish;
     private float _finishTimer;
+    private bool _isStartingNewGame;
+    private float _startTimer;
+    private bool _isLoadingGame;
+    private float _loadTimer;
 
     // CONSTRUCTORS
-    // public SceneManager(Scene[] scenes) {
-    //     _scenes = new List<Scene>(scenes);
-    //     _currentSceneIndex = 0;
-    //     _currentScene = _scenes[_currentSceneIndex];
-    //
-    //     int stageCount = 0;
-    //     foreach (Scene scene in _scenes) {
-    //         if (scene is Stage) {
-    //             stageCount++;
-    //             if (stageCount == 1) {
-    //                 _firstStageIndex = _scenes.IndexOf(scene);
-    //             }
-    //         }
-    //     }
-    //     _lastStageIndex = _scenes.IndexOf(scenes[_firstStageIndex + stageCount - 1]);
-    // }
     public SceneManager() {
         _scenes = new List<Scene>();
     }
@@ -56,35 +45,11 @@ public class SceneManager {
 
     // METHODS'
     public void Load() {
-        SaveData saveData = SaveManager.Load();
-        _player = new Batumbakal();
-
-        if (saveData != null) {
-            _player.ActualPosition = new Vector2(saveData.PositionX, saveData.PositionY);
-            _player.GetHealth().Current = saveData.CurrentHealth;
-            _player.GetHealth().Maximum = saveData.MaximumHealth;
-        }
-
         _scenes = new List<Scene> {
-            new StageOne(_player),
-            new StageTwo(_player),
-            new StageThree(_player)
+            new MainMenu()
         };
         
-        _firstStageIndex = _scenes.FindIndex(scene => scene is Stage);
-        _lastStageIndex = _scenes.FindLastIndex(scene => scene is Stage);
-
-        if (saveData != null) {
-            for (int i = 0; i < _scenes.Count; i++) {
-                if (_scenes[i] is Stage stage && stage.GetName() == saveData.CurrentScene) {
-                    _currentSceneIndex = i;
-                    break;
-                }
-            }
-        } else {
-            _currentSceneIndex = _firstStageIndex;
-        }
-
+        _currentSceneIndex = 0;
         _currentScene = _scenes[_currentSceneIndex];
         _currentScene.Load();
     }
@@ -109,25 +74,83 @@ public class SceneManager {
             return;
         }
         
-        _currentScene.Update(gameTime);
+        if (_isStartingNewGame) {
+            _startTimer -= (float)gameTime.ElapsedGameTime.TotalSeconds;
+            if (_startTimer <= 0f) {
+                SaveManager.DeleteSave();
+                
+                _player = new Batumbakal();
+                _player.ActualPosition = Vector2.Zero;
+                
+                BuildStages();
+
+                _currentScene.Unload();
+                _currentSceneIndex = _firstStageIndex;
+                _currentScene = _scenes[_currentSceneIndex];
+                _currentScene.Load();
+
+                _isStartingNewGame = false;
+            }
+            return;
+        }
+
+        if (_isLoadingGame) {
+            _loadTimer -= (float)gameTime.ElapsedGameTime.TotalSeconds;
+            if (_loadTimer <= 0f) {
+                SaveData saveData = SaveManager.Load();
+                _player = new Batumbakal();
+                _player.ActualPosition = new Vector2(saveData.PositionX, saveData.PositionY);
+
+                BuildStages();
+
+                _currentScene.Unload();
+                foreach (Scene scene in _scenes) {
+                    if (scene is Stage stage) {
+                        if (stage.GetName() == saveData.CurrentScene) {
+                            _currentSceneIndex = _scenes.IndexOf(stage);
+                            break;
+                        }
+                    }
+                }
+                _currentScene = _scenes[_currentSceneIndex];
+                _currentScene.Load();
+
+                _isLoadingGame = false;
+            }
+            return;
+        }
+        
+        if (_currentScene is MainMenu menu && _currentScene.IsFinished) {
+            switch (menu.GetSelection()) {
+                case "NewGame":
+                    _startTimer = 0.75f;
+                    _isStartingNewGame = true;
+                    break;
+
+                case "LoadGame": 
+                    if (SaveManager.HasSave()) {
+                        _loadTimer = 0.75f;
+                        _isLoadingGame = true;
+                    }
+                    break;
+
+                case "QuitGame":
+                    Environment.Exit(0);
+                    break;
+            }
+
+            return;
+        }
+        
+        
 
         if (_currentScene is Stage) {
             Stage stage = (Stage) _currentScene;
             if (stage.GetObjective() != null && 
                 stage.GetObjective().IsDestroyed &&
                 _currentSceneIndex == _lastStageIndex) {
-                
-                SaveData saveData = new SaveData {
-                    PositionX = _player.ActualPosition.X,
-                    PositionY = _player.ActualPosition.Y,
-                    CurrentHealth = _player.GetHealth().Current,
-                    MaximumHealth = _player.GetHealth().Maximum,
-                    CurrentScene = stage.GetName()
-                };
 
-                SaveManager.Save(saveData);
-
-                _finishTimer = 0.25f;
+                _finishTimer = 0.75f;
                 _shouldFinish = true;
             }
         }
@@ -145,19 +168,6 @@ public class SceneManager {
             }
         }
         
-        // if (_currentScene is Stage) {
-        //     Stage stage = (Stage) _currentScene;
-        //     if (stage != null &&
-        //         stage.GetReachedPreviousLocation() &&
-        //         _currentSceneIndex > _firstStageIndex) {
-        //         
-        //         _currentScene.Unload();
-        //         _currentSceneIndex--;
-        //         _currentScene = _scenes[_currentSceneIndex];
-        //         _currentScene.Load();
-        //     }
-        // }
-        
         if (_currentScene is Stage) {
             Stage stage = (Stage) _currentScene;
             if (stage != null &&
@@ -171,9 +181,20 @@ public class SceneManager {
                 _currentScene.Load();
             }
         }
+        
+        _currentScene.Update(gameTime);
     }
     
     public void Draw(SpriteBatch spriteBatch) {
         _currentScene.Draw(spriteBatch);
+    }
+
+    private void BuildStages() {
+        _scenes.Add(new StageOne(_player));
+        _scenes.Add(new StageTwo(_player));
+        _scenes.Add(new StageThree(_player));
+        
+        _firstStageIndex = _scenes.FindIndex(scene => scene is Stage);
+        _lastStageIndex = _scenes.FindLastIndex(scene => scene is Stage);
     }
 }
