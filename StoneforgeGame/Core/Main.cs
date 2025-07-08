@@ -74,21 +74,13 @@ public class Main : Microsoft.Xna.Framework.Game {
         
         _kState = Keyboard.GetState();
 
-        // if (keyState.IsKeyDown(Keys.NumPad0) && !_wasFullscreenKeyPressed) {
-        //     ToggleFullscreen();
-        // }
-        // _wasFullscreenKeyPressed = keyState.IsKeyDown(Keys.NumPad0);
-
         if (_kState.IsKeyDown(Keys.F1) && _prevKState.IsKeyUp(Keys.F1)) {
             MyDebug.IsDebug = !MyDebug.IsDebug;
         }
         
         _sceneManager.Update(gameTime);
-        // if (_sceneManager.IsFinished) {
-        //     _sceneManager.Unload();
-        //     
-        //     Exit();
-        // }
+
+        IsMouseVisible = _sceneManager.IsInMainMenu;
         
         _prevKState = _kState;
         
