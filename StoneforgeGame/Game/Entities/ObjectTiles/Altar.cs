@@ -1,8 +1,11 @@
-﻿using Microsoft.Xna.Framework;
+﻿using System;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using StoneforgeGame.Game.Entities.Characters;
 using StoneforgeGame.Game.Libraries;
 using StoneforgeGame.Game.Physics;
 using StoneforgeGame.Game.Scenes.Stages;
+using StoneForgeGame.Game.Utilities;
 
 
 namespace StoneforgeGame.Game.Entities.ObjectTiles;
@@ -17,9 +20,12 @@ public class Altar : ObjectTile {
     public Altar(Stage stage) {
         Texture = TextureLibrary.Altar;
 
+        Size = new Point(200, 280);
+
         Stage = stage;
         
         IsDestroyable = false;
+        IsInteractable = true;
     }
 
 
@@ -28,25 +34,24 @@ public class Altar : ObjectTile {
 
 
     // METHODS
-    public override void Load(Point location, Point size = default) {
+    public override void Load(Point location) {
         int frameWidth = Texture.Image.Width / Texture.Columns;
         int frameHeight = Texture.Image.Height / Texture.Rows;
-        
-        if (size == default) size = new Point(frameWidth, frameHeight);
         
         Source = new Rectangle(
             frameWidth * 0, frameHeight * 0,
             frameWidth, frameHeight
         );
+        
         Destination = new Rectangle(
-            location.X, location.Y,
-            size.X, size.Y
+            location, Size
         );
+        
         Color = Color.White;
 
         CollisionBox = new BoxCollider(
-            Destination.Location,
-            Destination.Location + Destination.Size,
+            location,
+            location + Size,
             solid : false
         );
         
@@ -54,17 +59,21 @@ public class Altar : ObjectTile {
         //
         // AnimationManager = null;
     }
-
-    public override void Update() {
-        
-    }
+    
+    public override void Update() { }
 
     public override void Draw(SpriteBatch spriteBatch) {
         spriteBatch.Draw(Texture.Image, Destination, Source, Color);
     }
 
-    public override void OnDestroy() {
-        if (IsDestroyed) return;
-        Destroy();
+    protected override void OnInteract(Character character) {
+        if (character.GetGemCount() >= 3) {
+            Color = Color.Black;
+            Destroy();
+        }
+        
+        Console.WriteLine("Altar Interacted");
+        
+        base.OnInteract(character);
     }
 }

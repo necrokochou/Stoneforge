@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Numerics;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using StoneforgeGame.Game.Entities.Attributes;
@@ -8,6 +9,7 @@ using StoneforgeGame.Game.Managers;
 using StoneforgeGame.Game.Physics;
 using StoneforgeGame.Game.Scenes.Stages;
 using Texture = StoneforgeGame.Game.Graphics.Texture;
+using Vector2 = Microsoft.Xna.Framework.Vector2;
 
 
 namespace StoneforgeGame.Game.Entities.Characters;
@@ -31,9 +33,12 @@ public abstract class Character {
     protected int JumpCount;
     protected float InvincibilityFrames;
     protected float InvincibilityTimer;
+    protected float AttackDamage;
     protected float AttackSpeed;
     protected float AttackCooldown;
     protected float AttackCooldownTimer;
+
+    protected int GemCount;
     
     protected Vector2 GamePosition;
     public Vector2 ActualPosition;
@@ -53,11 +58,12 @@ public abstract class Character {
     protected bool IsWalking;
     protected bool IsHit;
     protected bool IsAttacking;
-    protected bool IsDead;
+    protected bool IsAlive;
+    public bool IsDead;
 
     protected bool CanDoAnything;
-    protected bool CanMove;
-    protected bool CanJump;
+    protected bool CanMove = true;
+    protected bool CanJump = true;
 
         
     // CONSTRUCTORS
@@ -77,7 +83,7 @@ public abstract class Character {
 
 
     // METHODS
-    public abstract void Load(Rectangle window, Point location);
+    public abstract void Load(Point location);
 
     public abstract void Update(GameTime gameTime, Stage stage, Gravity gravity);
 
@@ -85,29 +91,7 @@ public abstract class Character {
 
     // protected void ApplyVelocity(Vector2 velocity, Vector2 direction, Gravity gravity) { }
 
-    protected virtual void CheckState() {
-        IsInvincible = InvincibilityTimer > 0f;
-        IsJumping = Velocity.Y < 0 && !IsOnGround;
-        IsFalling = Velocity.Y > 0 && !IsOnGround;
-        IsWalking = Direction.X != 0 && IsOnGround;
-        IsIdle = IsOnGround && !IsWalking && !IsJumping && !IsFalling && !IsAttacking;
-        IsDead = Health.Current <= 0;
-
-        if (IsDead) {
-            ResetMovement();
-            CanMove = false;
-            CanJump = false;
-            AnimationManager.Play("Death");
-            return;
-        }
-        
-        if (IsHit) AnimationManager.Play("Hit");
-        else if (IsAttacking) AnimationManager.Play("Attack");
-        else if (IsJumping) AnimationManager.Play("Jump");
-        else if (IsFalling) AnimationManager.Play("Fall");
-        else if (IsWalking) AnimationManager.Play("Walk");
-        else if (IsIdle) AnimationManager.Play("Idle");
-    }
+    protected abstract void CheckState();
     
     protected void CheckCollision(CollisionManager collisionManager) {
         if (!CollisionBox.HasCollided(collisionManager, CollisionBox.NextHorizontalBounds)) {
@@ -126,33 +110,39 @@ public abstract class Character {
     }
 
     protected void CheckMeleeRange(Stage stage) {
-        var tilesToDestroy = new List<ObjectTile>();
+        HitCharacter(stage);
+        UniqueDestroyTile(stage);
+    }
+    
+    private void HitCharacter(Stage stage) {
+        var charactersToHit = new List<Character>();
+        
+        // Iterate through all characters except player in the stage
+        foreach (Character character in stage.GetCharacterManager.Characters) {
+            if (this == character) continue;
 
-        foreach (ObjectTile objectTile in stage.GetObjectTileManager.ObjectTiles) {
-            if (objectTile != null &&
-                objectTile.IsDestroyable &&
-                objectTile.GetCollisionBox().Bounds.Intersects(MeleeRange)) {
-                tilesToDestroy.Add(objectTile);
+            if (character != null &&
+                character.IsAlive &&
+                character.GetCollisionBox().Bounds.Intersects(MeleeRange)) {
+                
+                charactersToHit.Add(character);
             }
         }
-
-        foreach (ObjectTile objectTile in tilesToDestroy) {
-            stage.GetCollisionManager.Remove(objectTile.GetCollisionBox());
-            objectTile.OnDestroy();
-            stage.GetObjectTileManager.Remove(objectTile);
+        
+        // Hit all characters in melee range
+        foreach (Character character in charactersToHit) {
+            character.Health.Current -= AttackDamage;
         }
     }
+    
+    protected virtual void UniqueDestroyTile(Stage stage) { }
+    protected virtual void UniqueInteract(Stage stage) { }
 
-    protected void UpdateGamePos() {
-        GamePosition = new Vector2(ActualPosition.X + (float) Source.X / 2, ActualPosition.Y + Source.Y);
-        
-        // Console.WriteLine(GamePosition);
-    }
-
-    protected void ResetMovement() {
-        Velocity.X = 0;
-        Direction = Vector2.Zero;
-    }
+    // protected void UpdateGamePos() {
+    //     GamePosition = new Vector2(ActualPosition.X + (float) Source.X / 2, ActualPosition.Y + Source.Y);
+    //     
+    //     // Console.WriteLine(GamePosition);
+    // }
 
     public Health GetHealth() {
         return Health;
@@ -160,6 +150,10 @@ public abstract class Character {
 
     public BoxCollider GetCollisionBox() {
         return CollisionBox;
+    }
+
+    public int GetGemCount() {
+        return GemCount;
     }
 
     protected void DrawAttributes(SpriteBatch spriteBatch) {

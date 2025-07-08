@@ -28,4 +28,7 @@ public class Gravity {
 
 
     // METHODS
+    public void Apply(Character character, float deltaTime) {
+        
+    }
 }

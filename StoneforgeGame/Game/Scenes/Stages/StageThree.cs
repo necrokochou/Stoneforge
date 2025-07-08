@@ -6,6 +6,7 @@ using StoneforgeGame.Game.Managers;
 using StoneForgeGame.Game.Managers;
 using StoneforgeGame.Game.Physics;
 using StoneforgeGame.Game.Scenes.Components;
+using StoneForgeGame.Game.Utilities;
 
 
 namespace StoneforgeGame.Game.Scenes.Stages;
@@ -22,6 +23,8 @@ public class StageThree : Stage {
         Player = character;
         
         ReachedNextLocation = false;
+        
+        Objective = new Altar(this);
     }
 
 
@@ -39,12 +42,22 @@ public class StageThree : Stage {
         );
         
         if (Player.ActualPosition == Vector2.Zero) {
-            Player.Load(Window, new Point(1680, -100));
+            Player.Load(new Point(1680, -100));
         } else {
-            Player.Load(Window, Player.ActualPosition.ToPoint()); // ← preserves saved position
+            Player.Load(Player.ActualPosition.ToPoint());
         }
-        
         CharacterManager.Add(Player);
+        
+        Enemy skeleton1 = new Skeleton();
+        skeleton1.Load(new Point(595, 155));
+        skeleton1.PatrolPoints = [595, 925];
+        CharacterManager.Add(skeleton1);
+        
+        Enemy skeleton2 = new Skeleton();
+        skeleton2.Load(new Point(550, 875));
+        skeleton2.PatrolPoints = [550, 1000];
+        CharacterManager.Add(skeleton2);
+        
         CollisionManager.AddRange(CharacterManager.Characters);
         
         CollisionManager.SetBorder(thickness : 90, bottom : true);
@@ -63,10 +76,15 @@ public class StageThree : Stage {
         CollisionManager.Add(new Point(1440, 720), new Point(1536, 990));
         CollisionManager.Add(new Point(1536, 630), new Point(1824, 990));
         
-        ObjectTileManager.Add(new Altar(this), new Point(1632, 492), new Point(144, 144));
+        ObjectTileManager.Add(new RockPile(this), new Point(114, 844));
+        ObjectTileManager.Add(new RockPile(this), new Point(1282, 214));
+        ObjectTileManager.Add(Objective, new Point(1582, 380));
+        CollisionManager.AddRange(ObjectTileManager.ObjectTiles);
         
         CharacterManager.Load(this);
 
+        // PreviousSceneBounds = new Rectangle(new Point(0, 0), new Point(1920, 0));
         NextSceneBounds = new Rectangle(0, 0, 0, 0);
+        Save();
     }
 }

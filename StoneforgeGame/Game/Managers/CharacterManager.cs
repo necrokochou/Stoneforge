@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using StoneforgeGame.Game.Entities.Characters;
@@ -12,6 +13,7 @@ namespace StoneForgeGame.Game.Managers;
 public class CharacterManager {
     // FIELDS
     private List<Character> _characters = new List<Character>();
+    private List<Character> _deadCharacters = new List<Character>();
     
     private Stage _stage;
 
@@ -25,6 +27,9 @@ public class CharacterManager {
     // PROPERTIES
     public List<Character> Characters {
         get => _characters;
+    }
+    public List<Character> DeadCharacters {
+        get => _deadCharacters;
     }
 
 
@@ -56,5 +61,6 @@ public class CharacterManager {
     
     public void Remove(Character character) {
         _characters.Remove(character);
+        _deadCharacters.Remove(character);
     }
 }

@@ -58,10 +58,6 @@ public class Main : Microsoft.Xna.Framework.Game {
         FontLibrary.Load();
         TextureLibrary.Load();
         
-        // _sceneManager = new SceneManager(
-        //     [_stageTwo]
-        // );
-        
         _sceneManager = new SceneManager();
         _sceneManager.Load();
     }
@@ -79,8 +75,11 @@ public class Main : Microsoft.Xna.Framework.Game {
         _wasFullscreenKeyPressed = keyState.IsKeyDown(Keys.NumPad0);
         
         _sceneManager.Update(gameTime);
-        
-        Console.WriteLine(mouseState.Position);
+        if (_sceneManager.IsFinished) {
+            _sceneManager.Unload();
+            
+            Exit();
+        }
         
         
         base.Update(gameTime);

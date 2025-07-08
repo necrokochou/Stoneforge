@@ -1,5 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using StoneforgeGame.Game.Entities.Characters;
+using StoneforgeGame.Game.Entities.ObjectTiles;
 using StoneforgeGame.Game.Libraries;
 using StoneforgeGame.Game.Managers;
 using StoneForgeGame.Game.Managers;
@@ -38,15 +39,26 @@ public class StageTwo : Stage {
         );
         
         if (Player.ActualPosition == Vector2.Zero) {
-            Player.Load(Window, new Point(-100, 180));
+            Player.Load(new Point(0, 180));
         } else {
-            Player.Load(Window, Player.ActualPosition.ToPoint());
+            Player.Load(Player.ActualPosition.ToPoint());
         }
         CharacterManager.Add(Player);
         
-        Enemy skeleton = new Skeleton();
-        skeleton.Load(Window, new Point(528, 315));
-        CharacterManager.Add(skeleton);
+        Enemy skeleton1 = new Skeleton();
+        skeleton1.Load(new Point(528, 315));
+        skeleton1.PatrolPoints = [525, 825];
+        CharacterManager.Add(skeleton1);
+        
+        Enemy skeleton2 = new Skeleton();
+        skeleton2.Load(new Point(324, 877));
+        skeleton2.PatrolPoints = [325, 700];
+        CharacterManager.Add(skeleton2);
+        
+        Enemy skeleton3 = new Skeleton();
+        skeleton3.Load(new Point(950, 877));
+        skeleton3.PatrolPoints = [950, 1500];
+        CharacterManager.Add(skeleton3);
         
         CollisionManager.AddRange(CharacterManager.Characters);
         
@@ -66,8 +78,14 @@ public class StageTwo : Stage {
         CollisionManager.Add(new Point(384, 720), new Point(1824, 810));
         CollisionManager.Add(new Point(1440, 630), new Point(1824, 720));
         
+        ObjectTileManager.Add(new RockPile(this), new Point(97, 934));
+        ObjectTileManager.Add(new RockPile(this), new Point(1715, 573));
+        CollisionManager.AddRange(ObjectTileManager.ObjectTiles);
+        
         CharacterManager.Load(this);
 
+        // PreviousSceneBounds = new Rectangle(new Point(-200, 0), new Point(0, 1080));
         NextSceneBounds = new Rectangle(new Point(0, 1080), new Point(1920, 1280));
+        Save();
     }
 }

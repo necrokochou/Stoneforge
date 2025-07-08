@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using StoneforgeGame.Game.Entities.Attributes;
+using StoneforgeGame.Game.Entities.ObjectTiles;
 using StoneforgeGame.Game.Graphics;
 using StoneforgeGame.Game.Libraries;
 using StoneforgeGame.Game.Managers;
@@ -32,18 +34,16 @@ public class Batumbakal : Character {
         Texture = TextureLibrary.Batumbakal;
         
         Name = "Batumbakal";
-        Health = new Health(30);
+        Health = new Health(100);
         
         WalkSpeed = 200f;
         JumpPower = 550f;
         JumpCount = 2;
         InvincibilityFrames = 3f;
+        AttackDamage = 20f;
         AttackCooldown = 1f;
         
         IsFacingRight = true;
-        
-        CanJump = true;
-        CanMove = true;
     }
 
 
@@ -54,46 +54,37 @@ public class Batumbakal : Character {
 
 
     // METHODS
-    public override void Load(Rectangle window, Point location) {
+    public override void Load(Point location) {
         int frameWidth = Texture.Image.Width / Texture.Columns;
         int frameHeight = Texture.Image.Height / Texture.Rows;
         
         Source = new Rectangle(
             frameWidth * 0, frameHeight * 0,
-            frameWidth, frameHeight
+            frameHeight, frameHeight
         );
+        
         Destination = new Rectangle(
             location.X, location.Y,
-            frameWidth, frameHeight
+            frameHeight, frameHeight
         );
-        Color = Color.White;
         
-        float widthRatio = 0.8f;
-        float heightRatio = 1f;
+        Color = Color.White;
 
-        int colliderWidth = (int)(Destination.Width * widthRatio);
-        int colliderHeight = (int)(Destination.Height * heightRatio);
-
-        int colliderX = Destination.X + (Destination.Width - colliderWidth) / 2;
-        int colliderY = Destination.Bottom - colliderHeight;
+        _origin = location;
+        ActualPosition = location.ToVector2();
 
         CollisionBox = new BoxCollider(
-            new Point(colliderX, colliderY),
-            new Point(colliderX + colliderWidth, colliderY + colliderHeight),
-            offsetRatio: new Vector2(widthRatio, heightRatio),
+            Point.Zero,
+            Point.Zero,
+            offsetRatio: new Vector2(0.5f, 1f),
             solid: false,
             owner: this
         );
-
+        
         MeleeRange = new Rectangle(
             CollisionBox.Bounds.Right, CollisionBox.Bounds.Top,
             CollisionBox.Bounds.Width, CollisionBox.Bounds.Height
         );
-
-        _origin = location;
-        if (_origin.X < 0 || _origin.X >= window.Right - Source.Width) _origin.X = 0;
-        if (_origin.Y < 0 || _origin.Y >= window.Bottom - Source.Height) _origin.Y = 0;
-        ActualPosition = location.ToVector2();
 
         AnimationManager = new AnimationManager(AnimationLibrary.BatumbakalAnimations);
         AnimationManager.Play("Idle");
@@ -116,6 +107,10 @@ public class Batumbakal : Character {
         
         // Console.WriteLine(Destination.Location);
         #endregion
+
+        if (_input.PressInteract) {
+            UniqueInteract(stage);
+        }
         
         #region --- MOVEMENT ---
         if (CanMove) {
@@ -156,27 +151,16 @@ public class Batumbakal : Character {
             AttackCooldownTimer = AttackCooldown;
         }
         
+        MeleeRange.Size = new Point((int) (CollisionBox.Bounds.Width * 1.5f), CollisionBox.Bounds.Height);
         if (IsFacingRight) {
-            MeleeRange.Location = new Point(
-                CollisionBox.Bounds.Right - CollisionBox.Bounds.Width / 2,
-                CollisionBox.Bounds.Top
-            );
+            MeleeRange.Location = new Point(CollisionBox.Bounds.Right, CollisionBox.Bounds.Top);
         } else {
-            MeleeRange.Location = new Point(
-                CollisionBox.Bounds.Left - MeleeRange.Width,
-                CollisionBox.Bounds.Top
-            );
+            MeleeRange.Location = new Point(CollisionBox.Bounds.Left - MeleeRange.Width, CollisionBox.Bounds.Top);
         }
         
-        if (IsAttacking && CurrentAnimation.IsFinished) {
-
-            MeleeRange.Size = new Point(CollisionBox.Bounds.Width, CollisionBox.Bounds.Height);
-
+        if (IsAttacking && AnimationManager.IsPlaying("Attack") && CurrentAnimation.IsFinished) {
             CheckMeleeRange(stage);
-            
             IsAttacking = false;
-            MeleeRange.Location = Point.Zero;
-            MeleeRange.Size = Point.Zero;
         }
 
         if (!IsAttacking && AttackCooldownTimer > 0f) {
@@ -193,7 +177,7 @@ public class Batumbakal : Character {
             Health.WasDecreased = false;
         }
 
-        if (IsHit && CurrentAnimation.IsFinished) {
+        if (IsHit && AnimationManager.IsPlaying("Hit") && CurrentAnimation.IsFinished) {
             IsHit = false;
         }
 
@@ -208,7 +192,6 @@ public class Batumbakal : Character {
         #region --- VELOCITY ---
         Velocity.X = Direction.X * WalkSpeed;
         Velocity += gravity.Force * deltaTime;
-        // Velocity = Vector2.Clamp(Velocity, Vector2.Zero, new Vector2(WalkSpeed, gravity.Magnitude));
         if (IsAttacking) {
             Velocity *= 0.2f;
         }
@@ -218,12 +201,12 @@ public class Batumbakal : Character {
         NextPosition.X = ActualPosition.X + Velocity.X * deltaTime;
         NextPosition.Y = ActualPosition.Y + Velocity.Y * deltaTime;
         CollisionBox.GetNextBounds(ActualPosition, NextPosition);
-        CheckCollision(stage.GetCollisionManager);
+        CheckCollision(stage.GetCollisionManager());
         #endregion
         
         #region --- POSITION ---
         Destination.Location = ActualPosition.ToPoint();
-        UpdateGamePos();
+        // UpdateGamePos();
         #endregion
         
         AnimationManager.Update();
@@ -246,6 +229,8 @@ public class Batumbakal : Character {
     public override void Draw(SpriteBatch spriteBatch) {
         SpriteEffects flip = IsFacingRight ? SpriteEffects.None : SpriteEffects.FlipHorizontally;
         
+        spriteBatch.Draw(MyDebug.Texture, MeleeRange, Color.Blue * 0.5f);
+        
         spriteBatch.Draw(
             Texture.Image,
             Destination,
@@ -258,5 +243,70 @@ public class Batumbakal : Character {
         );
         
         DrawAttributes(spriteBatch);
+        
+        string gemsText = $"GEMS : {GemCount}";
+        
+        spriteBatch.DrawString(FontLibrary.TempFont, gemsText, new Vector2(25, 50), Color.White);
+    }
+    
+    protected override void CheckState() {
+        IsInvincible = InvincibilityTimer > 0f;
+        IsJumping = Velocity.Y < 0 && !IsOnGround;
+        IsFalling = Velocity.Y > 0 && !IsOnGround;
+        IsWalking = Direction.X != 0 && IsOnGround;
+        IsIdle = IsOnGround && !IsWalking && !IsJumping && !IsFalling && !IsAttacking;
+        IsAlive = Health.Current > 0;
+
+        if (!IsAlive) {
+            Velocity.X = 0;
+            Direction = Vector2.Zero;
+            CanMove = false;
+            CanJump = false;
+            AnimationManager.Play("Death");
+
+            if (!IsDead && AnimationManager.IsPlaying("Death") && CurrentAnimation.IsFinished) {
+                IsDead = true;
+            }
+        }
+        
+        if (IsHit) AnimationManager.Play("Hit");
+        else if (IsAttacking) AnimationManager.Play("Attack");
+        else if (IsJumping) AnimationManager.Play("Jump");
+        else if (IsFalling) AnimationManager.Play("Fall");
+        else if (IsWalking) AnimationManager.Play("Walk");
+        else if (IsIdle) AnimationManager.Play("Idle");
+    }
+
+    protected override void UniqueDestroyTile(Stage stage) {
+        var objectTilesToDestroy = new List<ObjectTile>();
+        
+        // Iterate through all object tiles in the stage
+        foreach (ObjectTile objectTile in stage.GetObjectTileManager.ObjectTiles) {
+            if (objectTile != null &&
+                objectTile.IsDestroyable &&
+                objectTile.GetCollisionBox().Bounds.Intersects(MeleeRange)) {
+                
+                objectTilesToDestroy.Add(objectTile);
+            }
+        }
+
+        // Destroy all object tiles in melee range
+        foreach (ObjectTile objectTile in objectTilesToDestroy) {
+            stage.GetCollisionManager().Remove(objectTile.GetCollisionBox());
+            objectTile.Destroy();
+            stage.GetObjectTileManager.Remove(objectTile);
+            GemCount++;
+        }
+    }
+
+    protected override void UniqueInteract(Stage stage) {
+        foreach (ObjectTile objectTile in stage.GetObjectTileManager.ObjectTiles) {
+            if (objectTile != null &&
+                objectTile.IsInteractable &&
+                objectTile.GetCollisionBox().Bounds.Contains(CollisionBox.Bounds)) {
+                
+                objectTile.Interact(this);
+            }
+        }
     }
 }

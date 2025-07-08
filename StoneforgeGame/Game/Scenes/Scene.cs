@@ -11,6 +11,7 @@ public abstract class Scene {
     // FIELDS
     // --- INSTANCE FIELDS ---
     protected Background Background;
+    public bool IsFinished;
     
     // --- STATIC FIELDS ---
     private static Rectangle _window;

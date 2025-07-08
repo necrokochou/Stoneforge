@@ -27,15 +27,15 @@ public class BoxCollider {
     private bool _isSolid;
     private bool _isDamage;
 
-
-
+    
     // CONSTRUCTORS
     public BoxCollider(Point start, Point end, Vector2 offsetRatio = default, bool solid = true, bool damage = false, Character owner = null) {
         _destination = new Rectangle(
-            start, end - start
+            start,
+            end - start
         );
 
-        _offsetRatio = offsetRatio;
+        _offsetRatio = offsetRatio == default ? new Vector2(1f, 1f) : offsetRatio;
         
         _isSolid = solid;
         _isDamage = damage;
@@ -46,6 +46,7 @@ public class BoxCollider {
 
         _collisionDamage = 10;
     }
+    
 
     // PROPERTIES
     public Rectangle Bounds {
@@ -57,7 +58,7 @@ public class BoxCollider {
     public Rectangle NextVerticalBounds {
         get => _nextVerticalDestination;
     }
-    public Vector2 Offset {
+    public Vector2 OffsetRatio {
         get => _offsetRatio;
     }
     public Character Owner {
@@ -79,11 +80,11 @@ public class BoxCollider {
 
     // METHODS
     public void Update() {
-        int colliderWidth = (int)(_owner.Bounds.Width * _offsetRatio.X);
-        int colliderHeight = (int)(_owner.Bounds.Height * _offsetRatio.Y);
+        int colliderWidth = (int) (_owner.Bounds.Width * _offsetRatio.X);
+        int colliderHeight = (int) (_owner.Bounds.Height * _offsetRatio.Y);
 
-        int colliderX = _owner.Bounds.X + (_owner.Bounds.Width - colliderWidth) / 2;
-        int colliderY = _owner.Bounds.Bottom - colliderHeight;
+        int colliderX = (int) (_owner.ActualPosition.X + (_owner.Bounds.Width - colliderWidth) * 0.5f);
+        int colliderY = (int) (_owner.ActualPosition.Y + (_owner.Bounds.Height - colliderHeight) * _offsetRatio.Y);
 
         _destination = new Rectangle(
             colliderX,
@@ -92,24 +93,39 @@ public class BoxCollider {
             colliderHeight
         );
     }
+
+    public void Move(Point start, Point end) {
+        _destination = new Rectangle(
+            start, end - start
+        );
+    }
     
     public void Draw(SpriteBatch spriteBatch, int thickness) {
         MyDebug.DrawHollowRect(spriteBatch, _destination, Color.Yellow, thickness);
     }
     
     public void GetNextBounds(Vector2 position, Vector2 nextPosition) {
+        int colliderWidth = _destination.Width;
+        int colliderHeight = _destination.Height;
+
+        int nextX = (int) (nextPosition.X + (_owner.Bounds.Width - colliderWidth) * 0.5f);
+        int currentY = (int) (position.Y + (_owner.Bounds.Height - colliderHeight) * _offsetRatio.Y);
+
         _nextHorizontalDestination = new Rectangle(
-            (int) nextPosition.X,
-            (int) position.Y,
-            _destination.Width,
-            _destination.Height
+            nextX,
+            currentY,
+            colliderWidth,
+            colliderHeight
         );
-        
+
+        int currentX = (int) (position.X + (_owner.Bounds.Width - colliderWidth) * 0.5f);
+        int nextY = (int) (nextPosition.Y + (_owner.Bounds.Height - colliderHeight) * _offsetRatio.Y);
+
         _nextVerticalDestination = new Rectangle(
-            (int) position.X,
-            (int) nextPosition.Y,
-            _destination.Width,
-            _destination.Height
+            currentX,
+            nextY,
+            colliderWidth,
+            colliderHeight
         );
     }
 

@@ -28,6 +28,7 @@ public static class TextureLibrary {
     public static Texture GolluxIdle;
     public static Texture GolluxMove;
     public static Texture GolluxAttack;
+    public static Texture MenuBackground;
 
 
     // CONSTRUCTORS
@@ -106,7 +107,7 @@ public static class TextureLibrary {
         Altar = new Texture(
             _content.Load<Texture2D>("Assets/Textures/Altar"),
             1,
-            2
+            11
         );
 
         SkeletonIdle = new Texture(
@@ -131,6 +132,12 @@ public static class TextureLibrary {
             _content.Load<Texture2D>("Assets/Textures/NightBorne"),
             5,
             23
+        );
+
+        MenuBackground = new Texture(
+            _content.Load<Texture2D>("Assets/Textures/MenuBackground"),
+            1,
+            1
         );
     }
 }

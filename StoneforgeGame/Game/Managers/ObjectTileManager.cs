@@ -39,6 +39,7 @@ public class ObjectTileManager {
         for (int i = _objectTiles.Count - 1; i >= 0; i--) {
             var tile = _objectTiles[i];
             tile?.Update();
+            tile?.DebugDragTile();
             if (tile?.IsDestroyed == true) {
                 _objectTiles.RemoveAt(i);
             }
@@ -56,14 +57,13 @@ public class ObjectTileManager {
         _objectTiles.Add(objectTile);
     }
 
-    public void Remove(ObjectTile objectTile) {
-        _objectTiles.Remove(objectTile);
-    }
-
-    public void Add(ObjectTile objectTile, Point location, Point size = default) {
-        objectTile.Load(location, size);
+    public void Add(ObjectTile objectTile, Point location) {
+        objectTile.Load(location);
         
         Add(objectTile);
     }
 
+    public void Remove(ObjectTile objectTile) {
+        _objectTiles.Remove(objectTile);
+    }
 }

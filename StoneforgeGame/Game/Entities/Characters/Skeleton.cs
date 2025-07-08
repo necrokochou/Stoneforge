@@ -1,10 +1,13 @@
-﻿using Microsoft.Xna.Framework;
+﻿using System;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using StoneforgeGame.Game.Entities.Attributes;
+using StoneforgeGame.Game.Graphics;
 using StoneforgeGame.Game.Libraries;
 using StoneforgeGame.Game.Managers;
 using StoneforgeGame.Game.Physics;
 using StoneforgeGame.Game.Scenes.Stages;
+using StoneForgeGame.Game.Utilities;
 
 
 namespace StoneforgeGame.Game.Entities.Characters;
@@ -12,6 +15,10 @@ namespace StoneforgeGame.Game.Entities.Characters;
 
 public class Skeleton : Enemy {
     // FIELDS
+    private bool _isFollowingPlayer;
+    private bool _isInAttackRange;
+    private bool _isAttackAnimationCompleted;
+    private float _attackCooldownTimer;
     
 
 
@@ -23,7 +30,9 @@ public class Skeleton : Enemy {
         Health = new Health(30);
 
         WalkSpeed = 100f;
+        AttackDamage = 10f;
         AttackCooldown = 3f;
+        DetectRange = 200f;
         
         IsFacingRight = true;
     }
@@ -34,39 +43,37 @@ public class Skeleton : Enemy {
 
 
     // METHODS
-    public override void Load(Rectangle window, Point location) {
-        CalculateSource();
-        CalculateDestination(location);
+    public override void Load(Point location) {
+        int frameWidth = Texture.Image.Width / Texture.Columns;
+        int frameHeight = Texture.Image.Height / Texture.Rows;
+        
+        Source = new Rectangle(
+            frameWidth * 0, frameHeight * 0,
+            frameHeight, frameHeight
+        );
+        
+        Destination = new Rectangle(
+            location.X, location.Y,
+            frameHeight, frameHeight
+        );
+        
         Color = Color.White;
-        
-        float widthRatio = 0.7f;
-        float heightRatio = 0.5f;
-        
-        int colliderWidth = (int)(Destination.Width * widthRatio);
-        int colliderHeight = (int)(Destination.Height * heightRatio);
 
-        int colliderX = Destination.X + (Destination.Width - colliderWidth) / 2;
-        int colliderY = Destination.Bottom - colliderHeight;
+        ActualPosition = location.ToVector2();
 
         CollisionBox = new BoxCollider(
-            new Point(colliderX, colliderY),
-            new Point(colliderX + colliderWidth, colliderY + colliderHeight),
-            offsetRatio: new Vector2(widthRatio, heightRatio),
+            Point.Zero,
+            Point.Zero,
+            offsetRatio: new Vector2(0.2f, 0.4f),
             solid: false,
             owner: this
         );
-        
-        MeleeRange = new Rectangle(
-            CollisionBox.Bounds.Right - CollisionBox.Bounds.Width / 2, CollisionBox.Bounds.Top,
-            CollisionBox.Bounds.Width / 2, CollisionBox.Bounds.Height
-        );
-        
-        ActualPosition = location.ToVector2();
 
         AnimationManager = new AnimationManager(AnimationLibrary.SkeletonAnimations);
         AnimationManager.Play("Idle");
+    }
 
-        PatrolPoints = [new Vector2(528, Destination.Y), new Vector2(816, Destination.Y)];
+    private void Unload() {
     }
 
     public override void Update(GameTime gameTime, Stage stage, Gravity gravity) {
@@ -74,11 +81,26 @@ public class Skeleton : Enemy {
         
         Direction = Vector2.Zero;
 
-        if (!IsPatrolling) {
-            PatrolPointIndex = (PatrolPointIndex + 1) % PatrolPoints.Count;
+        MeleeRange.Size = new Point((int) (CollisionBox.Bounds.Width * 1.5f), CollisionBox.Bounds.Height);
+        if (IsFacingRight) {
+            MeleeRange.Location = new Point(CollisionBox.Bounds.Right, CollisionBox.Bounds.Top);
+        } else {
+            MeleeRange.Location = new Point(CollisionBox.Bounds.Left - MeleeRange.Width, CollisionBox.Bounds.Top);
         }
 
-        Patrol(deltaTime);
+        if (IsAttacking || _isFollowingPlayer)
+        {
+            IsPatrolling = false;
+            FollowPlayer(stage.GetPlayer(), deltaTime, gravity, stage);
+        }
+        else
+        {
+            Patrol(deltaTime, gravity, stage);
+        }
+
+        if (_attackCooldownTimer > 0)
+            _attackCooldownTimer -= deltaTime;
+
         CheckState();
         
         AnimationManager.Update();
@@ -86,6 +108,8 @@ public class Skeleton : Enemy {
 
     public override void Draw(SpriteBatch spriteBatch) {
         SpriteEffects flip = IsFacingRight ? SpriteEffects.None : SpriteEffects.FlipHorizontally;
+        
+        spriteBatch.Draw(MyDebug.Texture, MeleeRange, Color.Blue * 0.5f);
         
         spriteBatch.Draw(
             Texture.Image,
@@ -100,46 +124,130 @@ public class Skeleton : Enemy {
     }
 
     protected override void CheckState() {
-        IsIdle = !IsPatrolling && !IsAttacking;
-        
-        if (IsPatrolling) {
-            Texture = TextureLibrary.SkeletonWalk;
-            CalculateSource();
-            CalculateDestination(Destination.Location);
-            CalculateCollisionBox();
-            AnimationManager.Play("Walk");
+        IsIdle = !IsPatrolling && !IsAttacking && !_isFollowingPlayer;
+        IsAlive = Health.Current > 0;
+
+        if (!IsAlive && !IsDead) {
+            IsDead = true;
+            Direction = Vector2.Zero;
+            CanMove = false;
         }
-        else if (IsIdle) {
+
+        if (IsAttacking) {
+            Texture = TextureLibrary.SkeletonAttack;
+            if (!AnimationManager.IsPlaying("Attack")) {
+                AnimationManager.Play("Attack");
+                _isAttackAnimationCompleted = false;
+            }
+
+            if (AnimationManager.CurrentAnimation.IsFinished) {
+                _isAttackAnimationCompleted = true;
+                IsAttacking = false;
+            }
+        } else if (IsPatrolling || _isFollowingPlayer) {
+            Texture = TextureLibrary.SkeletonWalk;
+            AnimationManager.Play("Walk");
+        } else if (IsIdle) {
             Texture = TextureLibrary.SkeletonIdle;
-            CalculateSource();
-            CalculateDestination(Destination.Location);
-            CalculateCollisionBox();
             AnimationManager.Play("Idle");
         }
     }
 
-    private void CalculateSource() {
-        int frameWidth = Texture.Image.Width / Texture.Columns;
-        int frameHeight = Texture.Image.Height / Texture.Rows;
-        
-        Source = new Rectangle(
-            frameWidth * 0, frameHeight * 0,
-            frameWidth, frameHeight
-        );
-    }
+    private void Patrol(float deltaTime, Gravity gravity, Stage stage) {
+        var player = stage.GetPlayer();
+        float distanceToPlayer = Vector2.Distance(ActualPosition, player.ActualPosition);
 
-    private void CalculateDestination(Point location) {
-        int frameWidth = Texture.Image.Width / Texture.Columns;
-        int frameHeight = Texture.Image.Height / Texture.Rows;
+        if (distanceToPlayer <= DetectRange) {
+            _isFollowingPlayer = true;
+            return;
+        }
         
-        Destination = new Rectangle(
-            location.X,
-            location.Y,
-            frameWidth,
-            frameHeight
-        );
+        IsPatrolling = true;
+    
+        int target = PatrolPoints[PatrolPointIndex];
+        float distance = target - ActualPosition.X;
+
+        if (Math.Abs(distance) < 5f) {
+            ActualPosition.X = target;
+            PatrolPointIndex = (PatrolPointIndex + 1) % PatrolPoints.Count;
+            return;
+        }
+
+        if (CanMove) {
+            if (distance < 0) {
+                Direction.X -= 1;
+                IsFacingRight = false;
+            } else {
+                Direction.X += 1;
+                IsFacingRight = true;
+            }
+        }
+
+        Velocity.X = (IsAttacking && !_isAttackAnimationCompleted) ? 0 : Direction.X * WalkSpeed;
+        Velocity += gravity.Force * deltaTime;
+
+        NextPosition.X = ActualPosition.X + Velocity.X * deltaTime;
+        NextPosition.Y = ActualPosition.Y + Velocity.Y * deltaTime;
+        CollisionBox.GetNextBounds(ActualPosition, NextPosition);
+        CheckCollision(stage.GetCollisionManager());
+
+        Destination.Location = ActualPosition.ToPoint();
     }
     
-    private void CalculateCollisionBox() {
+    private void FollowPlayer(Character player, float deltaTime, Gravity gravity, Stage stage) {
+        float distanceToPlayer = Vector2.Distance(ActualPosition, player.ActualPosition);
+        _isFollowingPlayer = distanceToPlayer <= DetectRange;
+        
+        _isInAttackRange = MeleeRange.Intersects(player.GetCollisionBox().Bounds);
+
+        if (_isFollowingPlayer) {
+            IsPatrolling = false;
+
+            if (_isInAttackRange) {
+                // Face the player ONCE when attack starts
+                if (!IsAttacking) {
+                    IsFacingRight = player.ActualPosition.X > ActualPosition.X;
+                    Direction = Vector2.Zero;
+                    Velocity = Vector2.Zero;
+
+                    if (_attackCooldownTimer <= 0) {
+                        IsAttacking = true;
+                        _attackCooldownTimer = AttackCooldown;
+                        player.GetHealth().Decrease(AttackDamage);
+                    }
+                }
+
+                // No movement while attacking
+                Destination = new Rectangle((int)ActualPosition.X, (int)ActualPosition.Y, Destination.Width, Destination.Height);
+                CollisionBox.Update();
+                return;
+            }
+
+            // Move toward the player ONLY if not in attack range
+            Direction.X = player.ActualPosition.X < ActualPosition.X ? -1 : 1;
+            IsFacingRight = Direction.X > 0;
+
+            if (CanMove) {
+                Velocity.X = Direction.X * WalkSpeed;
+                Velocity += gravity.Force * deltaTime;
+
+                Vector2 nextPosition = ActualPosition + Velocity * deltaTime;
+                CollisionBox.GetNextBounds(ActualPosition, nextPosition);
+
+                if (!CollisionBox.HasCollided(stage.GetCollisionManager(), CollisionBox.NextHorizontalBounds)) {
+                    ActualPosition.X = nextPosition.X;
+                }
+
+                CollisionBox.GetNextBounds(ActualPosition, new Vector2(ActualPosition.X, ActualPosition.Y + Velocity.Y));
+                if (!CollisionBox.HasCollided(stage.GetCollisionManager(), CollisionBox.NextVerticalBounds)) {
+                    ActualPosition.Y += Velocity.Y;
+                } else {
+                    Velocity.Y = 0;
+                }
+            }
+        }
+
+        Destination = new Rectangle((int)ActualPosition.X, (int)ActualPosition.Y, Destination.Width, Destination.Height);
+        CollisionBox.Update();
     }
 }
