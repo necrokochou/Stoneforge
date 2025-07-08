@@ -2,12 +2,13 @@
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using StoneforgeGame.Game.Data;
 using StoneforgeGame.Game.Entities.Characters;
 using StoneforgeGame.Game.Libraries;
 using StoneforgeGame.Game.Managers;
 using StoneforgeGame.Game.Scenes;
 using StoneforgeGame.Game.Scenes.Stages;
-using StoneforgeGame.Game.Utilities;
+using StoneForgeGame.Game.Utilities;
 
 
 namespace StoneForgeGame.Game.Managers;
@@ -30,6 +31,11 @@ public class SceneManager {
     private float _startTimer;
     private bool _isLoadingGame;
     private float _loadTimer;
+    
+    private Rectangle _messageBoxBounds;
+    private Color _messageBoxColor = new(0, 0, 0, 200);
+    private int _messagePadding = 20;
+    
 
     // CONSTRUCTORS
     public SceneManager() {
@@ -69,7 +75,19 @@ public class SceneManager {
             _finishTimer -= (float)gameTime.ElapsedGameTime.TotalSeconds;
             if (_finishTimer <= 0f) {
                 _currentScene.Unload();
-                _isFinished = true;
+
+                foreach (Scene scene in _scenes) {
+                    if (scene is MainMenu menu) {
+                        _currentSceneIndex = _scenes.IndexOf(menu);
+                        _currentScene = menu;
+                        _currentScene.Load();
+                        menu.ShowMessage("You completed the game!");
+                        menu.Reset();
+                        break;
+                    }
+                }
+
+                _shouldFinish = false;
             }
             return;
         }
@@ -120,7 +138,9 @@ public class SceneManager {
             return;
         }
         
-        if (_currentScene is MainMenu menu && _currentScene.IsFinished) {
+        if (_currentScene is MainMenu && _currentScene.IsFinished) {
+            MainMenu menu = (MainMenu) _currentScene;
+                
             switch (menu.GetSelection()) {
                 case "NewGame":
                     _startTimer = 0.75f;
@@ -131,6 +151,9 @@ public class SceneManager {
                     if (SaveManager.HasSave()) {
                         _loadTimer = 0.75f;
                         _isLoadingGame = true;
+                    } else {
+                        menu.ShowMessage("No save found.");
+                        menu.Reset();
                     }
                     break;
 
@@ -141,17 +164,28 @@ public class SceneManager {
 
             return;
         }
-        
-        
 
         if (_currentScene is Stage) {
             Stage stage = (Stage) _currentScene;
-            if (stage.GetObjective() != null && 
-                stage.GetObjective().IsDestroyed &&
+            if (stage.GetObjective() != null &&
+                stage.GetObjective().IsCompleted &&
                 _currentSceneIndex == _lastStageIndex) {
 
                 _finishTimer = 0.75f;
                 _shouldFinish = true;
+
+                _currentScene.Unload();
+
+                foreach (Scene scene in _scenes) {
+                    if (scene is MainMenu menu) {
+                        _currentSceneIndex = _scenes.IndexOf(scene);
+                        _currentScene = menu;
+                        _currentScene.Load();
+                        break;
+                    }
+                }
+                
+                return;
             }
         }
         

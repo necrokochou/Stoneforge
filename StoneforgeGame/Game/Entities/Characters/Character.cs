@@ -24,6 +24,7 @@ public abstract class Character {
     
     protected string Name;
     protected Health Health;
+    public string UniqueID;
     
     protected BoxCollider CollisionBox;
     protected Rectangle MeleeRange;
@@ -49,7 +50,7 @@ public abstract class Character {
 
     protected AnimationManager AnimationManager;
 
-    protected bool IsFacingRight;
+    public bool IsFacingRight;
     protected bool IsOnGround;
     protected bool IsInvincible;
     protected bool IsIdle;
@@ -58,10 +59,8 @@ public abstract class Character {
     protected bool IsWalking;
     protected bool IsHit;
     protected bool IsAttacking;
-    protected bool IsAlive;
-    public bool IsDead;
+    public bool IsAlive;
 
-    protected bool CanDoAnything;
     protected bool CanMove = true;
     protected bool CanJump = true;
 
@@ -89,8 +88,6 @@ public abstract class Character {
 
     public abstract void Draw(SpriteBatch spriteBatch);
 
-    // protected void ApplyVelocity(Vector2 velocity, Vector2 direction, Gravity gravity) { }
-
     protected abstract void CheckState();
     
     protected void CheckCollision(CollisionManager collisionManager) {
@@ -117,7 +114,6 @@ public abstract class Character {
     private void HitCharacter(Stage stage) {
         var charactersToHit = new List<Character>();
         
-        // Iterate through all characters except player in the stage
         foreach (Character character in stage.GetCharacterManager.Characters) {
             if (this == character) continue;
 
@@ -129,20 +125,19 @@ public abstract class Character {
             }
         }
         
-        // Hit all characters in melee range
         foreach (Character character in charactersToHit) {
-            character.Health.Current -= AttackDamage;
+            if (character.IsAlive) {
+                character.Health.Current -= AttackDamage;
+            }
         }
     }
     
     protected virtual void UniqueDestroyTile(Stage stage) { }
     protected virtual void UniqueInteract(Stage stage) { }
 
-    // protected void UpdateGamePos() {
-    //     GamePosition = new Vector2(ActualPosition.X + (float) Source.X / 2, ActualPosition.Y + Source.Y);
-    //     
-    //     // Console.WriteLine(GamePosition);
-    // }
+    protected void DrawAttributes(SpriteBatch spriteBatch) {
+        Health.Draw(spriteBatch);
+    }
 
     public Health GetHealth() {
         return Health;
@@ -154,9 +149,5 @@ public abstract class Character {
 
     public int GetGemCount() {
         return GemCount;
-    }
-
-    protected void DrawAttributes(SpriteBatch spriteBatch) {
-        Health.Draw(spriteBatch);
     }
 }

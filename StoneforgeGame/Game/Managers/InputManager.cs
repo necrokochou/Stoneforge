@@ -1,5 +1,6 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
+using StoneForgeGame.Game.Utilities;
 
 
 namespace StoneforgeGame.Game.Managers;
@@ -52,10 +53,20 @@ public class InputManager {
     }
     
     public bool Reset {
-        get => _reset;
+        get {
+            if (MyDebug.IsDebug)
+                return _reset;
+
+            return false;
+        }
     }
     public bool Teleport {
-        get => _teleport;
+        get {
+            if (MyDebug.IsDebug)
+                return _teleport;
+
+            return false;
+        }
     }
     public Point TeleportLocation {
         get => _mouseState.Position;

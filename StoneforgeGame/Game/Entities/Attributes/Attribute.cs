@@ -13,6 +13,7 @@ public abstract class Attribute {
     private float _current;
     private float _maximum;
 
+    private float _lastCurrent;
     private bool _wasDecreased;
 
 
@@ -34,10 +35,9 @@ public abstract class Attribute {
         set => _maximum = value;   
     }
     public bool WasDecreased {
-        get => _wasDecreased;
-        set => _wasDecreased = value;
+        get => _lastCurrent > _current;
     }
-
+    
 
     // METHODS
     public void Draw(SpriteBatch spriteBatch) {
@@ -52,13 +52,17 @@ public abstract class Attribute {
     }
 
     public virtual void Decrease(float amount) {
+        _lastCurrent = _current;
+        
         if (_current > 0) _current -= amount;
         if (_current <= 0) _current = 0;
-        
-        _wasDecreased = true;
     }
 
     protected virtual void Reset() {
         _current = _maximum;
+    }
+
+    public virtual void SyncValues() {
+        _lastCurrent = _current;
     }
 }

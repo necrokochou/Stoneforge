@@ -109,7 +109,7 @@ public class Skeleton : Enemy {
     public override void Draw(SpriteBatch spriteBatch) {
         SpriteEffects flip = IsFacingRight ? SpriteEffects.None : SpriteEffects.FlipHorizontally;
         
-        spriteBatch.Draw(MyDebug.Texture, MeleeRange, Color.Blue * 0.5f);
+        if (MyDebug.IsDebug) spriteBatch.Draw(MyDebug.Texture, MeleeRange, Color.Blue * 0.5f);
         
         spriteBatch.Draw(
             Texture.Image,
@@ -124,11 +124,9 @@ public class Skeleton : Enemy {
     }
 
     protected override void CheckState() {
-        IsIdle = !IsPatrolling && !IsAttacking && !_isFollowingPlayer;
         IsAlive = Health.Current > 0;
 
-        if (!IsAlive && !IsDead) {
-            IsDead = true;
+        if (!IsAlive) {
             Direction = Vector2.Zero;
             CanMove = false;
         }
@@ -204,26 +202,26 @@ public class Skeleton : Enemy {
             IsPatrolling = false;
 
             if (_isInAttackRange) {
-                // Face the player ONCE when attack starts
                 if (!IsAttacking) {
                     IsFacingRight = player.ActualPosition.X > ActualPosition.X;
                     Direction = Vector2.Zero;
                     Velocity = Vector2.Zero;
+                    IsIdle = true;
 
                     if (_attackCooldownTimer <= 0) {
                         IsAttacking = true;
                         _attackCooldownTimer = AttackCooldown;
-                        player.GetHealth().Decrease(AttackDamage);
+                        if (player.IsAlive) {
+                            player.GetHealth().Decrease(AttackDamage);
+                        }
                     }
                 }
 
-                // No movement while attacking
                 Destination = new Rectangle((int)ActualPosition.X, (int)ActualPosition.Y, Destination.Width, Destination.Height);
                 CollisionBox.Update();
                 return;
             }
 
-            // Move toward the player ONLY if not in attack range
             Direction.X = player.ActualPosition.X < ActualPosition.X ? -1 : 1;
             IsFacingRight = Direction.X > 0;
 

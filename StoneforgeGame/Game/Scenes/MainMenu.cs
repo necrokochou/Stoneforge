@@ -3,6 +3,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using StoneforgeGame.Game.Libraries;
+using StoneforgeGame.Game.Managers;
 using StoneforgeGame.Game.Scenes.Components;
 using StoneForgeGame.Game.Utilities;
 
@@ -30,6 +31,8 @@ public class MainMenu : Scene {
 
     // CONSTRUCTORS
     public MainMenu() {
+        Name = "MainMenu";
+        
         Background = new Background(TextureLibrary.MenuBackground, Window.Size);
         _newGameButton = new Rectangle(700, 552, 515, 124);
         _loadGameButton = new Rectangle(700, 697, 515, 124);
@@ -42,25 +45,26 @@ public class MainMenu : Scene {
 
 
     // METHODS
-    public override void Load() { }
+    public override void Load() {
+        AudioManager.Play(AudioLibrary.CastleMusic1, volume : 0.1f, loop : true);
+    }
 
     public override void Unload() {
-        Background = null;
-
         _selection = null;
         _prevMState = default;
     }
 
     public override void Update(GameTime gameTime) {
+        float deltaTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
         MouseState mState = Mouse.GetState();
         
         if (_notificationTimer > 0f) {
-            _notificationTimer -= (float)gameTime.ElapsedGameTime.TotalSeconds;
+            _notificationTimer -= deltaTime;
             if (_notificationTimer <= 0f) {
-                _notificationMessage = null;
+                ClearNotification();
             }
         }
-
+        
         if (mState.LeftButton == ButtonState.Pressed &&
             _prevMState.LeftButton == ButtonState.Released) {
 
@@ -82,11 +86,13 @@ public class MainMenu : Scene {
     public override void Draw(SpriteBatch spriteBatch) {
         Background.Draw(spriteBatch);
         
-        spriteBatch.Draw(MyDebug.Texture, _newGameButton, Color.Red * 0.5f);
-        spriteBatch.Draw(MyDebug.Texture, _loadGameButton, Color.Red * 0.5f);
-        spriteBatch.Draw(MyDebug.Texture, _quitGameButton, Color.Red * 0.5f);
+        if (MyDebug.IsDebug) {
+            spriteBatch.Draw(MyDebug.Texture, _newGameButton, Color.Red * 0.5f);
+            spriteBatch.Draw(MyDebug.Texture, _loadGameButton, Color.Red * 0.5f);
+            spriteBatch.Draw(MyDebug.Texture, _quitGameButton, Color.Red * 0.5f);
+        }
         
-        if (!string.IsNullOrEmpty(_notificationMessage)) {
+        if (_notificationTimer > 0f && !string.IsNullOrWhiteSpace(_notificationMessage)) {
             DrawMessageBox(spriteBatch, _notificationMessage);
         }
     }
@@ -102,7 +108,7 @@ public class MainMenu : Scene {
             (int)textSize.Y + (_messagePadding * 2)
         );
 
-        Vector2 textPosition = new(
+        Vector2 textPosition = new Vector2(
             _messageBoxBounds.X + _messagePadding,
             _messageBoxBounds.Y + _messagePadding
         );
@@ -115,7 +121,9 @@ public class MainMenu : Scene {
         _selection = null;
         IsFinished = false;
         _prevMState = default;
-
+    }
+    
+    private void ClearNotification() {
         _notificationMessage = null;
         _notificationTimer = 0f;
     }
@@ -124,8 +132,7 @@ public class MainMenu : Scene {
         _notificationMessage = message;
         _notificationTimer = duration;
     }
-
-
+    
     public string GetSelection() {
         return _selection;
     }

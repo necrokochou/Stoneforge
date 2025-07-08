@@ -11,6 +11,9 @@ public static class MyDebug {
     // FIELDS
     private static GraphicsDevice _graphicsDevice;
     private static Texture2D _texture;
+    private static Rectangle _window;
+    
+    public static bool IsDebug = false;
     
 
     // CONSTRUCTORS
@@ -27,6 +30,10 @@ public static class MyDebug {
             _texture.SetData([Color.White]);
             return _texture;
         }
+    }
+    public static Rectangle Window {
+        get => _window;
+        set => _window = value;
     }
 
 

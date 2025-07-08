@@ -2,12 +2,14 @@
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using StoneforgeGame.Game.Data;
 using StoneforgeGame.Game.Entities.Characters;
 using StoneforgeGame.Game.Entities.ObjectTiles;
+using StoneforgeGame.Game.Libraries;
 using StoneforgeGame.Game.Managers;
 using StoneForgeGame.Game.Managers;
 using StoneforgeGame.Game.Physics;
-using StoneforgeGame.Game.Utilities;
+using StoneForgeGame.Game.Utilities;
 
 
 namespace StoneforgeGame.Game.Scenes.Stages;
@@ -19,7 +21,6 @@ public abstract class Stage : Scene {
     protected ObjectTileManager ObjectTileManager = new ObjectTileManager();
     protected CharacterManager CharacterManager = new CharacterManager();
 
-    protected string Name;
     protected Character Player;
     protected ObjectTile Objective;
 
@@ -29,10 +30,8 @@ public abstract class Stage : Scene {
     protected Rectangle NextSceneBounds;
     // protected bool ReachedPreviousLocation;
     protected bool ReachedNextLocation;
+
     
-    private bool _debug = true;
-
-
     // CONSTRUCTORS
     
 
@@ -62,13 +61,14 @@ public abstract class Stage : Scene {
         var charactersToRemove = new List<Character>();
 
         foreach (Character character in CharacterManager.Characters) {
-            if (character.IsDead) {
+            if (!character.IsAlive && Player != character) {
                 CollisionManager.Remove(character.GetCollisionBox());
                 charactersToRemove.Add(character);
             }
         }
 
         foreach (Character character in charactersToRemove) {
+            CharacterManager.DeadCharacters.Add(character);
             CharacterManager.Remove(character);
         }
         
@@ -80,11 +80,10 @@ public abstract class Stage : Scene {
             Player.ActualPosition = Vector2.Zero;
         }
     }
-
     
     public override void Draw(SpriteBatch spriteBatch) {
         Background.Draw(spriteBatch);
-        if (_debug) CollisionManager.Draw(spriteBatch);
+        if (MyDebug.IsDebug) CollisionManager.Draw(spriteBatch);
         ObjectTileManager.Draw(spriteBatch);
         CharacterManager.Draw(spriteBatch);
     }
@@ -92,18 +91,6 @@ public abstract class Stage : Scene {
     public CollisionManager GetCollisionManager() {
         return CollisionManager;
     }
-    
-    public string GetName() {
-        return Name;
-    }
-    
-    // public Rectangle GetPreviousSceneBounds() {
-    //     return PreviousSceneBounds;
-    // }
-    //
-    // public bool GetReachedPreviousLocation() {
-    //     return ReachedPreviousLocation;
-    // }
     
     public Rectangle GetNextSceneBounds() {
         return NextSceneBounds;
@@ -121,14 +108,27 @@ public abstract class Stage : Scene {
         return Player;
     }
 
-    protected void Save() {
-        SaveData saveData = new SaveData {
-            CurrentScene = Name,
-            CurrentHealth = Player.GetHealth().Current,
-            MaximumHealth = Player.GetHealth().Maximum,
-            PositionX = Player.ActualPosition.X,
-            PositionY = Player.ActualPosition.Y
-        };
+    public void Save() {
+        SaveData saveData = new SaveData();
+        
+        saveData.CurrentScene = Name;
+        saveData.PositionX = Player.ActualPosition.X;
+        saveData.PositionY = Player.ActualPosition.Y;
+        saveData.IsFacingRight = Player.IsFacingRight;
+        saveData.CurrentHealth = Player.GetHealth().Current;
+        saveData.MaximumHealth = Player.GetHealth().Maximum;
+        saveData.GemCount = Player.GetGemCount();
+        if (Objective != null)
+            saveData.ObjectiveComplete = Objective.IsCompleted;
+        saveData.DefeatedEnemies = new List<string>();
+        foreach (Character enemy in CharacterManager.DeadCharacters) {
+            saveData.DefeatedEnemies.Add(enemy.UniqueID);
+        }
+        saveData.DestroyedObjectTiles = new List<string>();
+        foreach (ObjectTile obj in ObjectTileManager.DestroyedObjectTiles) {
+            saveData.DestroyedObjectTiles.Add(obj.UniqueID);
+        }
+        
         SaveManager.Save(saveData);
     }
 }

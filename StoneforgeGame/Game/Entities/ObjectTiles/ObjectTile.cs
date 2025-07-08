@@ -7,6 +7,7 @@ using StoneforgeGame.Game.Entities.Characters;
 using StoneforgeGame.Game.Managers;
 using StoneforgeGame.Game.Physics;
 using StoneforgeGame.Game.Scenes.Stages;
+using StoneForgeGame.Game.Utilities;
 using Texture = StoneforgeGame.Game.Graphics.Texture;
 
 
@@ -19,6 +20,8 @@ public abstract class ObjectTile {
     public Rectangle Destination;
     protected Rectangle Source;
     protected Color Color;
+
+    public string UniqueID;
 
     protected Point Size;
 
@@ -34,6 +37,7 @@ public abstract class ObjectTile {
     public bool IsDestroyed;
     public bool IsInteractable;
     public bool IsInteracted;
+    public bool IsCompleted;
     
     private static ObjectTile _currentlyDraggedTile;
     private bool _isDragging;
@@ -66,8 +70,7 @@ public abstract class ObjectTile {
         OnDestroy();
     }
     
-    protected virtual void OnDestroy() {
-    }
+    protected virtual void OnDestroy() { }
     
     public void Interact(Character character) {
         if (IsInteracted) return;
@@ -75,8 +78,7 @@ public abstract class ObjectTile {
         OnInteract(character);
     }
     
-    protected virtual void OnInteract(Character character) {
-    }
+    protected virtual void OnInteract(Character character) { }
     
     public void DebugDragTile() {
         KeyboardState keyState = Keyboard.GetState();

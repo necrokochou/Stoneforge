@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Xna.Framework;
@@ -5,6 +6,7 @@ using Microsoft.Xna.Framework.Graphics;
 using StoneforgeGame.Game.Entities.Characters;
 using StoneforgeGame.Game.Physics;
 using StoneforgeGame.Game.Scenes.Stages;
+using StoneForgeGame.Game.Utilities;
 
 
 namespace StoneForgeGame.Game.Managers;
@@ -50,7 +52,7 @@ public class CharacterManager {
 
     public void Draw(SpriteBatch spriteBatch) {
         foreach (Character character in _characters) {
-            if (_debug) character.GetCollisionBox().Draw(spriteBatch, 2);
+            if (MyDebug.IsDebug) character.GetCollisionBox().Draw(spriteBatch, 2);
             character.Draw(spriteBatch);
         }
     }
@@ -61,6 +63,5 @@ public class CharacterManager {
     
     public void Remove(Character character) {
         _characters.Remove(character);
-        _deadCharacters.Remove(character);
     }
 }
