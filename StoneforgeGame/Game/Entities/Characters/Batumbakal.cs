@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Graphics;
 using StoneforgeGame.Game.Data;
 using StoneforgeGame.Game.Entities.Attributes;
@@ -109,17 +110,25 @@ public class Batumbakal : Character {
         _input.Update();
 
         #region --- DEBUGGING ---
-        if (_input.Reset) {
-            // Velocity = Vector2.Zero;
-            ActualPosition = _origin.ToVector2();
+
+        if (MyDebug.IsDebug) {
+            if (_input.Reset) {
+                ActualPosition = _origin.ToVector2();
+            }
+
+            if (_input.Teleport) {
+                Velocity = Vector2.Zero;
+                ActualPosition = _input.TeleportLocation.ToVector2();
+            }
+
+            if (_input.ForceRespawn) {
+                Respawn();
+            }
+
+            if (_input.SpecialVoiceLine) {
+                AudioManager.Play(AudioLibrary.BatumbakalDamaged[3].CreateInstance(), 0.2f);
+            }
         }
-        
-        if (_input.Teleport) {
-            Velocity = Vector2.Zero;
-            ActualPosition = _input.TeleportLocation.ToVector2();
-        }
-        
-        // Console.WriteLine(Destination.Location);
         #endregion
         
         #region --- SAVE DATA ---
@@ -277,7 +286,10 @@ public class Batumbakal : Character {
         IsAlive = Health.Current > 0;
 
         if (!IsAlive || AnimationManager.IsPlaying("Death")) return;
-        if (AnimationManager.IsPlaying("Respawn")) return;
+        if (AnimationManager.IsPlaying("Respawn") && !CurrentAnimation.IsFinished) return;
+        if (_hasRespawned && AnimationManager.IsPlaying("Respawn") && CurrentAnimation.IsFinished) {
+            _hasRespawned = false;
+        }
         
         if (IsHit) AnimationManager.Play("Hit");
         else if (IsAttacking) AnimationManager.Play("Attack");
@@ -341,7 +353,7 @@ public class Batumbakal : Character {
 
         if (!_hasRespawned) {
             AnimationManager.Play("Respawn");
-            AudioManager.Play(AudioLibrary.BatumbakalRespawn, 0.25f);
+            AudioManager.Play(AudioLibrary.BatumbakalRespawn, 0.5f);
 
             _hasRespawned = true;
             IsAlive = true;
@@ -349,7 +361,7 @@ public class Batumbakal : Character {
             IsInvincible = false;
             Health.Current = Health.Maximum;
             Health.SyncValues();
-            // IsHit = false;
+            IsHit = false;
             CanMove = true;
             CanJump = true;
             IsFacingRight = true;

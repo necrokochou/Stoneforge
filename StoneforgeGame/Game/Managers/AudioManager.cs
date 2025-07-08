@@ -34,6 +34,15 @@ public static class AudioManager {
         _playingSounds.Add(instance);
         _playingSounds.RemoveAll(s => s.State == SoundState.Stopped);
     }
+
+    public static void Play(SoundEffectInstance sound, float volume = 1, float pitch = 0, float pan = 0) {
+        sound.Volume = volume;
+        sound.Pitch = pitch;
+        sound.Pan = pan;
+        sound.Play();
+        _playingSounds.Add(sound);
+        _playingSounds.RemoveAll(s => s.State == SoundState.Stopped);
+    }
     
     public static void Play(Song song, float volume = 1f, bool loop = false) {
         _currentSong = song;
